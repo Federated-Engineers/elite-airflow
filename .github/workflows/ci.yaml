@@ -62,12 +62,12 @@ jobs:
           
           # Clone repository using HTTPS URL without token
           git clone https://github.com/Federated-Engineers/kubernetes-deployments.git kubernetes-deployments
-          cd kubernetes-deployments/applications/airflow
+          cd kubernetes-deployments/applications/airflow/
           
           if [[ "$OSTYPE" == "darwin"* ]]; then
-            sed -i '' "s|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:.*|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:version-${{ github.sha }}|g" values.yaml
+            sed -i '' "s|tag: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:.*|tag: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:version-${{ github.sha }}|g" values.yaml
           else
-            sed -i "s|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:.*|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:version-${{ github.sha }}|g" values.yaml.yaml
+            sed -i "s|tag: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:.*|tag: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:version-${{ github.sha }}|g" values.yaml
           fi
           
           # Commit changes
