@@ -67,16 +67,16 @@ jobs:
           cd argo-repo-demo/argo-path
           
           if [[ "$OSTYPE" == "darwin"* ]]; then
-            sed -i '' "s|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:.*|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:$IMAGE_TAG|g" deployment.yaml
+            sed -i '' "s|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:.*|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:version-${{ github.sha }}|g" deployment.yaml
           else
-            sed -i "s|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:.*|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:$IMAGE_TAG|g" deployment.yaml
+            sed -i "s|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:.*|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:version-${{ github.sha }}|g" deployment.yaml
           fi
           
           # Commit changes
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git add deployment.yaml
-          git commit -m "Update image to $IMAGE_TAG"
+          git commit -m "Update image to version-${{ github.sha }}"
           
           # Push
           git push
