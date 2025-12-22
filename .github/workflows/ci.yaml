@@ -47,7 +47,7 @@ jobs:
           REPOSITORY: airflow
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker build -t version-$REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
       - name: Update GitOps repository
@@ -67,9 +67,9 @@ jobs:
           cd argo-repo-demo/argo-path
           
           if [[ "$OSTYPE" == "darwin"* ]]; then
-            sed -i '' "s|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:.*|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:main-${{ github.sha }}|g" deployment.yaml
+            sed -i '' "s|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:.*|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:version-${{ github.sha }}|g" deployment.yaml
           else
-            sed -i "s|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:.*|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:main-${{ github.sha }}|g" deployment.yaml
+            sed -i "s|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:.*|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:version-${{ github.sha }}|g" deployment.yaml
           fi
           
           # Commit changes
