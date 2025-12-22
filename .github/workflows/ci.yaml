@@ -67,9 +67,9 @@ jobs:
           cd argo-repo-demo/argo-path
           
           if [[ "$OSTYPE" == "darwin"* ]]; then
-            sed -i '' "s|image: gcr.io/google-samples/gb-frontend:.*|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:main-${{ github.sha }}|g" deployment.yaml
+            sed -i '' "s|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:.*|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:main-${{ github.sha }}|g" deployment.yaml
           else
-            sed -i "s|image: gcr.io/google-samples/gb-frontend:.*|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:main-${{ github.sha }}|g" deployment.yaml
+            sed -i "s|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:.*|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:main-${{ github.sha }}|g" deployment.yaml
           fi
           
           # Commit changes
