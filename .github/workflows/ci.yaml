@@ -32,9 +32,9 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4 # More information on this action can be found below in the 'AWS Credentials' section
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_2 }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_2 }}
-          aws-region: eu-north-1
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -59,17 +59,15 @@ jobs:
           git config --global credential.helper store
           echo "https://${GIT_TOKEN}:x-oauth-basic@github.com" > ~/.git-credentials
           
-          # Remove any existing gitops directory
-          # rm -rf gitops
           
           # Clone repository using HTTPS URL without token
-          git clone https://github.com/cappymayor/argo-repo-demo.git argo-repo-demo
-          cd argo-repo-demo/argo-path
+          git clone https://github.com/Federated-Engineers/kubernetes-deployments.git kubernetes-deployments
+          cd kubernetes-deployments/applications/airflow
           
           if [[ "$OSTYPE" == "darwin"* ]]; then
-            sed -i '' "s|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:.*|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:version-${{ github.sha }}|g" deployment.yaml
+            sed -i '' "s|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:.*|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:version-${{ github.sha }}|g" values.yaml
           else
-            sed -i "s|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:.*|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:version-${{ github.sha }}|g" deployment.yaml
+            sed -i "s|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:.*|image: 049417293525.dkr.ecr.eu-central-1.amazonaws.com/airflow:version-${{ github.sha }}|g" values.yaml.yaml
           fi
           
           # Commit changes
