@@ -49,7 +49,7 @@ x-airflow-common:
   # In order to add custom dependencies or upgrade provider distributions you can use your extended image.
   # Comment the image line, place your Dockerfile in the directory where you placed the docker-compose.yaml
   # and uncomment the "build" line below, Then run `docker-compose build` to build the images.
-  image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:3.1.5}
+  # image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:3.1.5}
   # build: .
   env_file:
     - ${ENV_FILE_PATH:-.env}
@@ -120,6 +120,8 @@ services:
   airflow-apiserver:
     <<: *airflow-common
     command: api-server
+    build:
+      context: .
     ports:
       - "8080:8080"
     healthcheck:
@@ -137,6 +139,8 @@ services:
   airflow-scheduler:
     <<: *airflow-common
     command: scheduler
+    build:
+      context: .
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8974/health"]
       interval: 30s
@@ -152,6 +156,8 @@ services:
   airflow-dag-processor:
     <<: *airflow-common
     command: dag-processor
+    build:
+      context: .
     healthcheck:
       test: ["CMD-SHELL", 'airflow jobs check --job-type DagProcessorJob --hostname "$${HOSTNAME}"']
       interval: 30s
@@ -167,6 +173,8 @@ services:
   airflow-worker:
     <<: *airflow-common
     command: celery worker
+    build:
+      context: .
     healthcheck:
       # yamllint disable rule:line-length
       test:
@@ -192,6 +200,8 @@ services:
   airflow-triggerer:
     <<: *airflow-common
     command: triggerer
+    build:
+      context: .
     healthcheck:
       test: ["CMD-SHELL", 'airflow jobs check --job-type TriggererJob --hostname "$${HOSTNAME}"']
       interval: 30s
@@ -207,6 +217,8 @@ services:
   airflow-init:
     <<: *airflow-common
     entrypoint: /bin/bash
+    build:
+      context: .
     # yamllint disable rule:line-length
     command:
       - -c
@@ -298,6 +310,8 @@ services:
 
   airflow-cli:
     <<: *airflow-common
+    build:
+      context: .
     profiles:
       - debug
     environment:
@@ -316,6 +330,8 @@ services:
   # See: https://docs.docker.com/compose/profiles/
   flower:
     <<: *airflow-common
+    build:
+      context: .
     command: celery flower
     profiles:
       - flower
