@@ -9,7 +9,7 @@ ENV AIRFLOW_HOME=${AIRFLOW_HOME_ARG}
 
 USER airflow
 # each folder in AIRFLOW_HOME can be used as import in python
-ENV PYTHONPATH ${AIRFLOW_HOME}:$PYTHONPATH
+ENV PYTHONPATH=${AIRFLOW_HOME}:$PYTHONPATH
 
 # install extra requirements
 # COPY requirements-providers.txt /
