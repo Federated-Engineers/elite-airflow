@@ -1,4 +1,5 @@
 import datetime
+import boto3
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
@@ -8,7 +9,9 @@ DAG_ID = 'Federated-Engineers-Demo'
 
 # simple task to test full flow
 def demo():
-    return "@" * 50
+    s3 = boto3.resource('s3')
+    for bucket in s3.buckets.all():
+        return bucket.name
 
 
 default_args = {
