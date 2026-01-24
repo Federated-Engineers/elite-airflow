@@ -1,7 +1,7 @@
 import datetime
+
 import awswrangler as wr
 import pandas as pd
-import boto3
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 
@@ -12,7 +12,7 @@ DAG_ID = 'Federated-Engineers-Demo'
 def demo():
     wr.s3.to_parquet(
         df=pd.DataFrame({'col': [1, 2, 3]}),
-        path='s3://poc-bucket-oremeta/prefix/my_file.parquet')       
+        path='s3://poc-bucket-oremeta/prefix/my_file.parquet')
     return "Data written to s3"
 
 
