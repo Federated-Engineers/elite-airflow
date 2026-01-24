@@ -1,6 +1,6 @@
 import datetime
-import boto3
 
+import boto3
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 
