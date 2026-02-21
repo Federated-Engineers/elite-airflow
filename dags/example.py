@@ -11,7 +11,7 @@ DAG_ID = 'latest-demo'
 # simple task to test full flow
 def demo():
     wr.s3.to_parquet(
-        df=pd.DataFrame({'col': [1, 2, 4]}),
+        df=pd.DataFrame({'col': [1, 2, 5]}),
         path='s3://poc-bucket-oremeta/prefix/my_file.parquet')
     return "Data written to s3"
 
