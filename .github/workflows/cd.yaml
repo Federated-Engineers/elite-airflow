@@ -12,7 +12,6 @@ jobs:
     name: checkout
     runs-on: ubuntu-24.04
 
-    if: ${{ github.event_name == 'push' }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
