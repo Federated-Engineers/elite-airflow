@@ -11,7 +11,8 @@ jobs:
   lint:
     name: checkout
     runs-on: ubuntu-24.04
-    if: ${{ github.event_name == 'pull_request' }}
+
+    # if: ${{ github.event_name == 'pull_request' }}
     steps:
       - name: checkout
         uses: actions/checkout@v5
