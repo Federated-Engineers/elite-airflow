@@ -48,12 +48,12 @@ jobs:
           
           # Clone repository using HTTPS URL without token
           git clone https://github.com/Federated-Engineers/kubernetes-deployments.git kubernetes-deployments
-          cd kubernetes-deployments/applications/airflow/
+          cd kubernetes-deployments/blob/main/applications/production-values/
           
           if [[ "$OSTYPE" == "darwin"* ]]; then
-            sed -i '' "s|tag: version-.*|tag: version-${{ github.sha }}|g" values.yaml
+            sed -i '' "s|tag: version-.*|tag: version-${{ github.sha }}|g" elite-airflow-values.yaml
           else
-            sed -i "s|tag: version-.*|tag: version-${{ github.sha }}|g" values.yaml
+            sed -i "s|tag: version-.*|tag: version-${{ github.sha }}|g" elite-airflow-values.yaml
           fi
             
           # Commit changes
