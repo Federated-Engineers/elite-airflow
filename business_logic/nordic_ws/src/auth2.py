@@ -1,10 +1,9 @@
 import json
-import boto3
+
 import gspread
-from airflow.sdk.bases.hook import BaseHook
 from airflow.providers.amazon.aws.hooks.base_aws import AwsBaseHook
+from business_logic.nordic_ws.config.sheets import AWS_REGION, SSM_PARAM
 from google.oauth2.service_account import Credentials
-from business_logic.nordic_ws.config.sheets import SSM_PARAM, AWS_REGION
 
 SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets.readonly",
@@ -12,9 +11,9 @@ SCOPES = [
 ]
 
 
-
 def get_gspread_client():
-    """Fetch service account from SSM and return authenticated gspread client."""
+    """Fetch service account from SSM and return
+    authenticated gspread client."""
     hook = AwsBaseHook(aws_conn_id="aws_default", client_type="ssm")
     ssm = hook.get_client_type(region_name=AWS_REGION)
 

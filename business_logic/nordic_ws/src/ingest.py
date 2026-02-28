@@ -12,6 +12,7 @@ def normalize_dates(df, date_col):
         )
     return df
 
+
 def ingest_sheet(gspread_client, sheet_config):
     """Pull sheet, deduplicate against existing S3 data, append new rows."""
     name = sheet_config["name"]
@@ -31,7 +32,6 @@ def ingest_sheet(gspread_client, sheet_config):
         else "signup_date" if "signup_date" in df_new.columns
         else None
     )
-    
     df_new = normalize_dates(df_new, date_col)
 
     # 2. Load existing data from S3
@@ -50,11 +50,11 @@ def ingest_sheet(gspread_client, sheet_config):
             how="left",
             indicator=True
         )
-        df_delta = merged[merged["_merge"] == "left_only"].drop(columns=["_merge"])
-        df_final = pd.concat([df_existing, df_delta], ignore_index=True, join="outer")\
+        df_delta = merged[merged["_merge"] ==
+                          "left_only"].drop(columns=["_merge"])
+        df_final = pd.concat([df_existing, df_delta],
+                             ignore_index=True, join="outer")\
                      .sort_values(unique_keys)\
                      .reset_index(drop=True)
-        print(f"[{name}] Appended {len(df_delta)} new rows (total: {len(df_final)})")
-
     # 4. Write back to S3
     write_parquet(df_final, s3_key)

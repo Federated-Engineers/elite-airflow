@@ -1,9 +1,8 @@
 import io
-import boto3
 import pandas as pd
 from business_logic.nordic_ws.config.sheets import S3_BUCKET, AWS_REGION
-from airflow.sdk.bases.hook import BaseHook
 from airflow.providers.amazon.aws.hooks.base_aws import AwsBaseHook
+
 
 def get_s3_client():
     hook = AwsBaseHook(aws_conn_id="aws_default", client_type="s3")
@@ -21,6 +20,7 @@ def read_parquet(s3_key):
     except Exception as e:
         print(f"  Warning reading {s3_key}: {e}")
         return pd.DataFrame()
+
 
 def write_parquet(df, s3_key):
     """Write dataframe as parquet to S3."""
