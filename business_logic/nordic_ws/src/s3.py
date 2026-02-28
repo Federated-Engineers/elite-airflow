@@ -1,7 +1,8 @@
 import io
+
 import pandas as pd
-from business_logic.nordic_ws.config.sheets import S3_BUCKET, AWS_REGION
 from airflow.providers.amazon.aws.hooks.base_aws import AwsBaseHook
+from business_logic.nordic_ws.config.sheets import AWS_REGION, S3_BUCKET
 
 
 def get_s3_client():

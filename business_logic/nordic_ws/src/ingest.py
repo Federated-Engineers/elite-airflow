@@ -18,26 +18,21 @@ def ingest_sheet(gspread_client, sheet_config):
     name = sheet_config["name"]
     unique_keys = sheet_config["unique_keys"]
     print(f"\n[{name}] Starting ingestion...")
-
     # 1. Pull from Google Sheets
     sheet = gspread_client.open_by_key(sheet_config["id"])
     df_new = pd.DataFrame(sheet.get_worksheet(0).get_all_records())
-
     if df_new.empty:
         print(f"[{name}] Sheet is empty, skipping.")
         return
-
     date_col = (
         "date" if "date" in df_new.columns
         else "signup_date" if "signup_date" in df_new.columns
         else None
     )
     df_new = normalize_dates(df_new, date_col)
-
     # 2. Load existing data from S3
     s3_key = f"{sheet_config['s3_folder']}/latest.parquet"
     df_existing = read_parquet(s3_key)
-
     # 3. Incremental merge — only append new date+product_id combos
     if df_existing.empty:
         df_final = df_new

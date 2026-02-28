@@ -16,7 +16,6 @@ def get_gspread_client():
     authenticated gspread client."""
     hook = AwsBaseHook(aws_conn_id="aws_default", client_type="ssm")
     ssm = hook.get_client_type(region_name=AWS_REGION)
-
     response = ssm.get_parameter(Name=SSM_PARAM, WithDecryption=True)
     sa_info = json.loads(response["Parameter"]["Value"])
     creds = Credentials.from_service_account_info(sa_info, scopes=SCOPES)
