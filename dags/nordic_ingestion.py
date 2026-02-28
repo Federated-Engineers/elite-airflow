@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
-from airflow.providers.amazon.aws.hooks.base_aws import AwsBaseHook
 from airflow.sdk.bases.hook import BaseHook
 from business_logic.nordic_ws.src.auth2 import get_gspread_client
 from business_logic.nordic_ws.src.ingest import ingest_sheet
