@@ -1,0 +1,5 @@
+boto3
+gspread
+google-auth
+pandas
+pyarrow
