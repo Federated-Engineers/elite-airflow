@@ -14,7 +14,7 @@ def normalize_dates(df, date_col):
 
 
 def ingest_sheet(gspread_client, sheet_config):
-    """Pull sheet, deduplicate against existing S3 data, append new rows."""
+    """Pull sheet,. deduplicate against existing S3 data, append new rows."""
     name = sheet_config["name"]
     unique_keys = sheet_config["unique_keys"]
     print(f"\n[{name}] Starting ingestion...")
