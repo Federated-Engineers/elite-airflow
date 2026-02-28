@@ -1,6 +1,6 @@
-from src.auth import get_gspread_client
-from src.ingest import ingest_sheet
-from config.sheets import SHEETS
+from business_logic.nordic_ws.src.auth import get_gspread_client
+from business_logic.nordic_ws.src.ingest import ingest_sheet
+from business_logic.nordic_ws.config.sheets import SHEETS
 
 def run():
     print("=== Nordic Peaks Ingestion ===")
