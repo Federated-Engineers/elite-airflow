@@ -15,15 +15,12 @@ default_args = {
     'retry_delay': timedelta(seconds=5),
     'catchup': False
 }
-
-
 dag = DAG(
     dag_id='nordic_firm_dag',
     default_args=default_args,
     schedule='@daily',
     description='A DAG to send google sheets data to S3',
 )
-
 write_market_s3 = PythonOperator(
         dag=dag,
         python_callable=write_to_marketing_s3,
