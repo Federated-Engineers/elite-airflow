@@ -1,7 +1,7 @@
 import json
-from airflow.sdk import Variable
 
 import boto3
+from airflow.sdk import Variable
 
 
 def get_ssm_parameter():
