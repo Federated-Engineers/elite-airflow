@@ -1,16 +1,20 @@
-import gspread
 import json
-from google.oauth2.service_account import Credentials
+
+import gspread
 import pandas as pd
+from google.oauth2.service_account import Credentials
 from plugins.aws import get_ssm_parameter
 
 
 def get_google_sheets_credentials():
-    """Fetches Google Sheets API credentials from AWS Systems Manager Parameter Store and returns an authorized gspread client.
+    """Fetches Google Sheets API credentials from AWS Systems
+    Manager Parameter Store and returns an authorized gspread client.
     Returns:
-        gspread.Client: An authorized gspread client for interacting with Google Sheets.
+        gspread.Client: An authorized gspread client for
+        interacting with Google Sheets.
     """
-    credentials_dict = get_ssm_parameter("/production/elite/service-account/credentials.json")
+    credentials_dict = get_ssm_parameter
+    ("/production/elite/service-account/credentials.json")
     credentials_dict = json.loads(credentials_dict)
     scopes = ['https://www.googleapis.com/auth/spreadsheets',
               'https://www.googleapis.com/auth/drive']

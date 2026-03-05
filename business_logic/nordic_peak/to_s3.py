@@ -19,18 +19,16 @@ def setup_aws_session() -> None:
 def write_to_s3(sheet_id: str, path_dir: str) -> None:
     """
     Function to read a Google Sheet and write it to S3 as Parquet.
-  
     Args:
         sheet_id: Google Sheet ID to read from
-        path_dir: S3 path directory (e.g., 'finance_data', 'marketing_campaign_data')
+        path_dir: S3 path directory (e.g., 'finance_data',
+        'marketing_campaign_data')
     """
     wr.engine.set("python")
     setup_aws_session()
-    
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     raw_s3_bucket = "federated-engineers-staging-elite-data-lake"
     path = f"s3://{raw_s3_bucket}/{path_dir}/{now}"
-    
     wr.s3.to_parquet(
         df=read_google_sheet(sheet_id),
         path=path,
@@ -44,12 +42,15 @@ def write_to_finance_s3() -> None:
 
 
 def write_to_marketing_s3() -> None:
-    write_to_s3("13ULiowSb4JuNIaLldstlNB7sqr1WBe0Yrjm8ALEyLQ0", "marketing_campaign_data")
+    write_to_s3("13ULiowSb4JuNIaLldstlNB7sqr1WBe0Yrjm8ALEyLQ0",
+                "marketing_campaign_data")
 
 
 def write_to_supply_chain_s3() -> None:
-    write_to_s3("1MLhga5_FJpgpr8sBLjUlvwQ8sNDPULnv3Rbps3J5l7k", "supply_chain_data")
+    write_to_s3("1MLhga5_FJpgpr8sBLjUlvwQ8sNDPULnv3Rbps3J5l7k",
+                "supply_chain_data")
 
 
 def write_to_user_growth_s3() -> None:
-    write_to_s3("1xBazE0xUO0sUc7TqsosSCTqe2eQQ1x9-1k5wJemTxc0", "user_growth_data")
+    write_to_s3("1xBazE0xUO0sUc7TqsosSCTqe2eQQ1x9-1k5wJemTxc0",
+                "user_growth_data")

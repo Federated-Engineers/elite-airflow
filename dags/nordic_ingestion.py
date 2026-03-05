@@ -3,10 +3,10 @@ from datetime import timedelta
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-
-from business_logic.nordic_peak.to_s3 import (write_to_finance_s3, write_to_marketing_s3, write_to_supply_chain_s3,
-                                                      write_to_user_growth_s3)
-
+from business_logic.nordic_peak.to_s3 import (write_to_finance_s3,
+                                              write_to_marketing_s3,
+                                              write_to_supply_chain_s3,
+                                              write_to_user_growth_s3)
 
 default_args = {
     'start_date': datetime.datetime(2026, 1, 1),

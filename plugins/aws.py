@@ -3,7 +3,7 @@ from airflow.sdk import Variable
 
 
 def get_ssm_parameter(ssm_parameter_name: str):
-    """Fetches the value of a parameter from AWS Systems Manager Parameter Store.
+    """Fetch the value of a parameter from AWS Systems Manager Parameter Store.
     Args:
         ssm_parameter_name (str): The name of the parameter to fetch.
     Returns:
