@@ -11,7 +11,7 @@ default_args = {
     'owner': 'Federated-Engineers',
     'depends_on_past': False,
     'start_date': datetime.datetime(2021, 11, 15),
-    'retries': 3,
+    'retries': 1,
     'retry_delay': datetime.timedelta(seconds=5),
     'execution_timeout': datetime.timedelta(minutes=10)
 }
