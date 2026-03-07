@@ -37,7 +37,5 @@ REPOSITORY LAYOUT
 - Start airflow by running `docker compose up -d --build`
   - This will use the Dockerfile in the repository to build the image with the dependencies defined in the `requirements.txt`.
   - The airflow services are started using the image built above.
-
-`docker compose up -d --build`
-to start your local Airflow environment. This will build the Docker image (with your dependencies, new code, etc.) and start the Airflow services locally so you can validate your DAG before opening a PR.
+- Visit `localhost:8080` to view the airflow UI.
 
