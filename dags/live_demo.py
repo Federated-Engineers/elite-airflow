@@ -1,7 +1,7 @@
 import datetime
 
 from airflow import DAG
-from airflow.operators.python import PythonOperator
+from airflow.providers.standard.operators.python import PythonOperator
 from business_logic.live_demo import demo
 
 DAG_ID = 'live-demo'
