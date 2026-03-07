@@ -3,6 +3,7 @@ from datetime import timedelta
 
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
+
 from business_logic.nordic_peak.to_s3 import write_to_s3
 
 default_args = {
