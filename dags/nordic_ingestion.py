@@ -15,7 +15,7 @@ default_args = {
 dag = DAG(
     dag_id='nordic_firm_dag',
     default_args=default_args,
-    schedule= '0 8 * * *',
+    schedule='0 8 * * *',
     description='A DAG to send google sheets data to S3',
 )
 write_market_s3 = PythonOperator(
@@ -26,7 +26,6 @@ write_market_s3 = PythonOperator(
             "sheet_id": "13ULiowSb4JuNIaLldstlNB7sqr1WBe0Yrjm8ALEyLQ0",
             "path_dir": "marketing_campaign_data"
         }
-        
     )
 write_finance_s3 = PythonOperator(
         dag=dag,
