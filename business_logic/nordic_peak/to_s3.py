@@ -26,12 +26,13 @@ def write_to_s3(sheet_id: str, path_dir: str) -> None:
     """
     wr.engine.set("python")
     setup_aws_session()
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    raw_s3_bucket = "federated-engineers-staging-elite-data-lake"
-    path = f"s3://{raw_s3_bucket}/{path_dir}/{now}"
+    now = datetime.now().strftime("%Y-%m-%d")
+    raw_s3_bucket = "federated-engineers-production-elite-nordic-peak"
+    path = f"s3://{raw_s3_bucket}/{path_dir}"
     wr.s3.to_parquet(
         df=read_google_sheet(sheet_id),
         path=path,
         dataset=True,
-        mode="append"
+        mode="append",
+        filename_prefix=f"{now}_"
     )

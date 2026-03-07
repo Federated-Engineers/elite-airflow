@@ -14,8 +14,8 @@ def get_google_sheets_credentials():
         gspread.Client: An authorized gspread client for
         interacting with Google Sheets.
     """
-    credentials_dict = get_ssm_parameter
-    ("/production/elite/service-account/credentials.json")
+    credentials_dict = get_ssm_parameter(
+        "/production/elite/service-account/credentials.json")
     credentials_dict = json.loads(credentials_dict)
     scopes = ['https://www.googleapis.com/auth/spreadsheets',
               'https://www.googleapis.com/auth/drive']
