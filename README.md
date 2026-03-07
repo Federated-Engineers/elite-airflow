@@ -28,3 +28,9 @@ REPOSITORY LAYOUT
 - `requirements-dev.txt` ---> This is only used for the CI part of the CI/CD pipeline.
 - `requirements.txt` ---> This is the actual file we use to manage `production dependencies`. If you need a new library for your DAG, simply add it here and start your `local development`.
 
+### FOR LOCAL DEVELOPMENT
+
+Run
+`docker compose up -d --build`
+to start your local Airflow environment. This will build the Docker image (with your dependencies, new code, etc.) and start the Airflow services locally so you can validate your DAG before opening a PR.
+
