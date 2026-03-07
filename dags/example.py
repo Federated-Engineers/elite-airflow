@@ -3,7 +3,7 @@ import datetime
 import awswrangler as wr
 import pandas as pd
 from airflow import DAG
-from airflow.operators.python import PythonOperator
+from airflow.providers.standard.operators.python import PythonOperator
 
 DAG_ID = 'latest-demo'
 
