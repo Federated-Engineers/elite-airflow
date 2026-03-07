@@ -2,7 +2,7 @@ import datetime
 from datetime import timedelta
 
 from airflow import DAG
-from airflow.operators.python import PythonOperator
+from airflow.providers.standard.operators.python import PythonOperator
 from business_logic.nordic_peak.to_s3 import (write_to_finance_s3,
                                               write_to_marketing_s3,
                                               write_to_supply_chain_s3,
@@ -17,7 +17,7 @@ default_args = {
 dag = DAG(
     dag_id='nordic_firm_dag',
     default_args=default_args,
-    schedule='@daily',
+    schedule= '0 8 * * *',
     description='A DAG to send google sheets data to S3',
 )
 write_market_s3 = PythonOperator(
@@ -40,4 +40,4 @@ write_growth_s3 = PythonOperator(
         python_callable=write_to_user_growth_s3,
         task_id='write_user_growth_s3'
     )
-write_market_s3 >> write_finance_s3 >> write_supply_chain_s3 >> write_growth_s3
+[write_market_s3, write_finance_s3, write_supply_chain_s3, write_growth_s3]
