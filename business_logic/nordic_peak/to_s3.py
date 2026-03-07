@@ -35,22 +35,3 @@ def write_to_s3(sheet_id: str, path_dir: str) -> None:
         dataset=True,
         mode="append"
     )
-
-
-def write_to_finance_s3() -> None:
-    write_to_s3("1vQFb4E7QEpVRkpRe34CyGfaH9VJRFVZpFLAc7taYYwg", "finance_data")
-
-
-def write_to_marketing_s3() -> None:
-    write_to_s3("13ULiowSb4JuNIaLldstlNB7sqr1WBe0Yrjm8ALEyLQ0",
-                "marketing_campaign_data")
-
-
-def write_to_supply_chain_s3() -> None:
-    write_to_s3("1MLhga5_FJpgpr8sBLjUlvwQ8sNDPULnv3Rbps3J5l7k",
-                "supply_chain_data")
-
-
-def write_to_user_growth_s3() -> None:
-    write_to_s3("1xBazE0xUO0sUc7TqsosSCTqe2eQQ1x9-1k5wJemTxc0",
-                "user_growth_data")
