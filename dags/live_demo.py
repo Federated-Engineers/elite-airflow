@@ -20,7 +20,6 @@ default_args = {
 dag = DAG(
     DAG_ID,
     default_args=default_args,
-    # schedule_interval='13 8,18 * * 1-6',
     max_active_runs=1,
     catchup=False,
     tags=[DAG_ID]
