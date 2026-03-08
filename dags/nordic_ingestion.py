@@ -9,7 +9,7 @@ from business_logic.nordic_peak.to_s3 import write_to_s3
 default_args = {
     'start_date': datetime.datetime(2026, 1, 1),
     'retries': 2,
-    'retry_delay': timedelta(seconds=5),
+    'retry_delay': timedelta(seconds=2),
     'catchup': False
 }
 
