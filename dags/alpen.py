@@ -1,8 +1,9 @@
-import pandas as pd
+import datetime
+
 from airflow.providers.standard.operators.python import PythonOperator
 from airflow.sdk import DAG
 
-from business_logic.el_pipeline import *
+from business_logic.el_pipeline import data_pipeline
 
 DAG_ID = "alpha_mechanic_pipeline"
 

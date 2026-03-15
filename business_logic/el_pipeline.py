@@ -31,8 +31,7 @@ def load_to_s3():
     bucket = Variable.get("bucket")
     csv_data = df.to_csv(index=False)
 
-    s3_client = boto3.client("s3",
-                            region_name=("eu-central-1"))
+    s3_client = boto3.client("s3", region_name=("eu-central-1"))
 
     engr_path = f'{main_folder}/{'alpen_records'}/{today}_{file_name}'
     vendors_path = f'{main_folder}/{'vendor'}/{file_name}'
