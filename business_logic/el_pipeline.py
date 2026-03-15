@@ -10,12 +10,18 @@ today = datetime.datetime.now().strftime("%d-%m-%Y_%H:%M:%S")
 
 
 def read_from_gsheet():
+    print("Hetting service account credentials from Airflow Variable")
     cred_dict = json.loads(Variable.get('credential'))
+
+    print("Instantiating the gsheet credentials ")
     gsheet_client = gspread.service_account_from_dict(cred_dict)
     # read a Google Workbook by key
+
+    print("Starting to open the google spreadsheet in ")
     workbook = gsheet_client.open_by_key(Variable.get("key"))
 
     worksheet = workbook.sheet1
+    print("Retrieved the google sheet 1 ")
     data = worksheet.get_all_records()
 
     df = pd.DataFrame(data)
