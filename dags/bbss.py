@@ -1,8 +1,9 @@
+from datetime import datetime, timedelta
+
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
-from datetime import datetime, timedelta
-from business_logic.bbss_project.bbss_weatherapi import fetch_weatherapi_data
 
+from business_logic.bbss_project.bbss_weatherapi import fetch_weatherapi_data
 
 default_args = {
     'owner': 'federatedengineers',

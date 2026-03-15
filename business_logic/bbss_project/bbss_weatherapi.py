@@ -1,7 +1,8 @@
+from datetime import datetime, timedelta, timezone
+
 import awswrangler as wr
-import requests
 import pandas as pd
-from datetime import datetime, timezone, timedelta
+import requests
 from airflow.sdk import Variable
 
 
