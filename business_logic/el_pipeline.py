@@ -24,36 +24,41 @@ def read_from_gsheet():
 
 
 def load_to_s3():
+    print("Starting to read from google spread sheet")
     df = read_from_gsheet()
 
     file_name = 'repairs.csv'
     main_folder = 'alpen_mechanik'
+    print("Getting bucket name from Airflow Variable UI")
     bucket = Variable.get("bucket")
     csv_data = df.to_csv(index=False)
 
+    print("Instantiating the boto3 s3 client!!!!!!")
     s3_client = boto3.client("s3", region_name=("eu-central-1"))
 
     engr_path = f'{main_folder}/{'alpen_records'}/{today}_{file_name}'
     vendors_path = f'{main_folder}/{'vendor'}/{file_name}'
     paths = [engr_path, vendors_path]
 
+    print("Loop started to write to s3 destinations !!!!!!")
     for path in paths:
         s3_client.put_object(
             Bucket=bucket,
             Key=path,
             Body=csv_data
         )
+        print(f"Successfully written to path {path} !!!!!!")
 
     print(f'Uploaded No of Records: {df.shape[0]}')
 
 
-def data_pipeline():
+# def data_pipeline():
 
-    try:
-        print('commenced data ingestion...')
-        load_to_s3()
-        print("Ingestion complete")
-        print('File successfully uploaded')
+#     try:
+#         print('commenced data ingestion...')
+#         load_to_s3()
+#         print("Ingestion complete")
+#         print('File successfully uploaded')
 
-    except Exception as e:
-        print(f'Pipeline failed....{e}')
+#     except Exception as e:
+#         print(f'Pipeline failed....{e}')

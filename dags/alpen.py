@@ -3,7 +3,7 @@ import datetime
 from airflow.providers.standard.operators.python import PythonOperator
 from airflow.sdk import DAG
 
-from business_logic.el_pipeline import data_pipeline
+from business_logic.el_pipeline import load_to_s3
 
 DAG_ID = "alpha_mechanic_pipeline"
 
@@ -30,7 +30,7 @@ dag = DAG(
 gsheet_to_sftp = PythonOperator(
     dag=dag,
     task_id='gsheet_to_sftp',
-    python_callable=data_pipeline
+    python_callable=load_to_s3
 )
 
 
