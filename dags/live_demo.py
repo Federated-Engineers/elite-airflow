@@ -1,26 +1,18 @@
 import datetime
 
-import awswrangler as wr
-import pandas as pd
 from airflow import DAG
-from airflow.providers.standard.operators.python import PythonOperator
+from airflow.operators.python import PythonOperator
 
-DAG_ID = 'latest-demo'
+from business_logic.live_demo import demo
 
-
-# simple task to test full flow
-def demo():
-    wr.s3.to_parquet(
-        df=pd.DataFrame({'col': [1, 2, 100]}),
-        path='s3://poc-bucket-oremeta/prefix/my_file.parquet')
-    return "Data written to s3."
+DAG_ID = 'live-demo'
 
 
 default_args = {
     'owner': 'Federated-Engineers',
     'depends_on_past': False,
     'start_date': datetime.datetime(2021, 11, 15),
-    'retries': 3,
+    'retries': 1,
     'retry_delay': datetime.timedelta(seconds=5),
     'execution_timeout': datetime.timedelta(minutes=10)
 }
@@ -36,8 +28,10 @@ dag = DAG(
 )
 
 
-get_latest_report_file_task = PythonOperator(
+simple_s3_write = PythonOperator(
     dag=dag,
-    task_id='get_latest_report_file',
+    task_id='simple_s3_write',
     python_callable=demo
 )
+
+simple_s3_write
