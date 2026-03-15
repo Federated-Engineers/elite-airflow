@@ -1,0 +1,36 @@
+from business_logic.el_pipeline import *
+
+import pandas as pd
+from airflow.sdk import DAG
+from airflow.providers.standard.operators.python import PythonOperator
+
+DAG_ID = "alpha_mechanic_pipeline"
+
+
+default_args = {
+    'owner': 'Federated-Engineers',
+    'depends_on_past': False,
+    'start_date': datetime.datetime(2026, 3, 5),
+    'retries': 3,
+    'retry_delay': datetime.timedelta(seconds=5),
+    'execution_timeout': datetime.timedelta(minutes=10)
+}
+
+
+dag = DAG(
+    DAG_ID,
+    default_args=default_args,
+    # schedule_interval='13 8,18 * * 1-6',
+    max_active_runs=1,
+    catchup=False,
+    tags=[DAG_ID]
+)
+
+gsheet_to_sftp = PythonOperator(
+    dag=dag,
+    task_id='gsheet_to_sftp',
+    python_callable=data_pipeline
+)
+
+
+gsheet_to_sftp
