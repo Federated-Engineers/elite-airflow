@@ -1,10 +1,11 @@
-from business_logic.el_pipeline import *
+from business_logic.alpen_mechanik.alpen_logic import alpen_elt_pipeline
 
 import pandas as pd
+import datetime
 from airflow.sdk import DAG
 from airflow.providers.standard.operators.python import PythonOperator
 
-DAG_ID = "alpha_mechanic_pipeline"
+DAG_ID = "alpen_mechanik"
 
 
 default_args = {
@@ -29,7 +30,7 @@ dag = DAG(
 gsheet_to_sftp = PythonOperator(
     dag=dag,
     task_id='gsheet_to_sftp',
-    python_callable=data_pipeline
+    python_callable=alpen_elt_pipeline
 )
 
 
