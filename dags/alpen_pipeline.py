@@ -24,7 +24,7 @@ dag = DAG(
     max_active_runs=1,
     catchup=False,
     tags=[DAG_ID],
-    description= "Dag to ingest data from googlesheet to S3"
+    description="Dag to ingest data from googlesheet to S3"
 )
 
 gsheet_to_sftp = PythonOperator(
