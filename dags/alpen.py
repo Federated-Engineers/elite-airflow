@@ -2,7 +2,6 @@ import datetime
 
 from airflow.providers.standard.operators.python import PythonOperator
 from airflow.sdk import DAG
-
 from business_logic.el_pipeline import load_to_s3
 
 DAG_ID = "alpha_mechanic_pipeline"
