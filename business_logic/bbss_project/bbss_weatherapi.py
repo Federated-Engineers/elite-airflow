@@ -3,8 +3,8 @@ from datetime import datetime, timezone
 import requests
 from airflow.sdk import Variable
 
-from plugins.date_time import get_next_day_utc
 from plugins.pandas_helper import normalize_weather_forecast
+from plugins.date_time import get_next_day_utc
 from plugins.s3_helper import write_df_to_s3
 
 
@@ -23,15 +23,14 @@ def fetch_weatherapi_data(**context):
     folder_name = weather_config["folder_name"]
     location = weather_config["location"]
 
-    # Use get_next_day_utc without arguments
-    next_day_date = get_next_day_utc()
+    next_day_date = get_next_day_utc(execution_date)
     forecast_date = next_day_date.strftime("%Y-%m-%d")
 
     url = "https://api.weatherapi.com/v1/forecast.json"
     params = {
         "key": api_key,
         "q": location,
-        "dt": forecast_date,
+        "dt": forecast_date
     }
 
     response = requests.get(url, params=params, timeout=30)
@@ -48,5 +47,5 @@ def fetch_weatherapi_data(**context):
         bucket_name=bucket_name,
         folder_name=folder_name,
         file_name=file_name,
-        dataset=False,
+        dataset=False
     )
