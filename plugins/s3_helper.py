@@ -23,4 +23,4 @@ def write_df_to_s3(df, bucket_name, folder_name, file_name, dataset=False):
         dataset=dataset
     )
 
-    return s3_path
+    return f"Data successfully written to {s3_path}"

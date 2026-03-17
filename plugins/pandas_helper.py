@@ -1,17 +1,14 @@
 import pandas as pd
 
 
-def normalize_weather_forecast(json_data):
+def pandas_json_normalizer(json_list: list):
     """
-    Normalizes hourly forecast data from WeatherAPI JSON response
-    into a pandas DataFrame.
+    This normalized list of json to a pandas dataframe.
 
     Args:
-        json_data (dict): Raw JSON response from WeatherAPI.
+        json_list (dict): List of jsons.
 
     Returns:
-        pd.DataFrame: Normalized hourly forecast data.
+        pd.DataFrame
     """
-    return pd.json_normalize(
-        json_data["forecast"]["forecastday"][0]["hour"]
-    )
+    return pd.json_normalize(json_list)
