@@ -34,7 +34,6 @@ def append_dataframe_to_sheet(df, spreadsheet_id, worksheet_name):
     """
     Append dataframe rows to Google Sheets.
     """
-
     gc = get_google_sheets_client()
 
     spreadsheet = gc.open_by_key(spreadsheet_id)
@@ -44,4 +43,3 @@ def append_dataframe_to_sheet(df, spreadsheet_id, worksheet_name):
     rows = df.values.tolist()
 
     worksheet.append_rows(rows)
-    
