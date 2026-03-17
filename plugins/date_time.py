@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 
+
 def get_next_day_utc(execution_date: datetime = None):
     """
     Returns the next day's date in UTC, optionally relative to execution_date.
