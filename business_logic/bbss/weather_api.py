@@ -1,6 +1,8 @@
 from datetime import datetime, timezone
 import requests
+
 from airflow.models import Variable
+
 from plugins.date_time import get_next_day_utc
 from plugins.pandas_helper import pandas_json_normalizer
 from plugins.s3_helper import write_df_to_s3
@@ -9,7 +11,7 @@ from plugins.s3_helper import write_df_to_s3
 def fetch_weatherapi_data(**context):
     """
     Fetches WeatherAPI data for Mallorca and writes to S3.
-      
+
     Behavior:
     - If Airflow Variable 'bbss_backfill_date' exists, fetch history.json for that date.
     - If not, fetch forecast.json for the next day relative to execution_date.
