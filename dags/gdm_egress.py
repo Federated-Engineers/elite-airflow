@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
 
-
 from business_logic.gdm.gdm_script import extract_portugal_data
 
 default_args = {
