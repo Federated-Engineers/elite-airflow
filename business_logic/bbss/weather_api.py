@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
-import requests
 
+import requests
 from airflow.models import Variable
 
 from plugins.date_time import get_next_day_utc
