@@ -13,9 +13,9 @@ def fetch_weatherapi_data(**context):
     Fetches WeatherAPI data for Mallorca and writes to S3.
 
     Behavior:
-    - If Airflow Variable 'bbss_backfill_date' exists, fetch history.json for that date.
+    - If Airflow Variable 'bbss_backfill_date' exists,
+      fetch history.json for that date.
     - If not, fetch forecast.json for the next day relative to execution_date.
-    
     Fully backfill-safe and config-driven.
     """
     config = Variable.get("BBSS_CONFIG", deserialize_json=True)
