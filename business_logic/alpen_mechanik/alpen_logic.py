@@ -4,7 +4,7 @@ import awswrangler as wr
 import pandas as pd
 
 from plugins.date_utils import get_current_datetime
-from plugins.get_gsheet import get_data_from_gsheet
+from plugins.extract_gsheet import get_data_from_gsheet
 
 logging.basicConfig(level=logging.INFO)
 
