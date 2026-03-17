@@ -1,7 +1,8 @@
+from datetime import datetime, timedelta
+
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
-from datetime import datetime
-from datetime import timedelta
+
 
 from business_logic.gdm.gdm_script import extract_portugal_data
 
@@ -9,17 +10,23 @@ default_args = {
     "owner": "gdm",
     "start_date": datetime(2026, 1, 1),
     "retries": 2,
-    "retry_delay": timedelta(minutes=5)
+    "retry_delay": timedelta(minutes=5),
 }
 
 with DAG(
     dag_id="gdm_egress",
     default_args=default_args,
     schedule="0 8 * * *",
-    catchup=False
+    description="Extract Portugal data from S3 and push to Google Sheets",
+    catchup=False,
+    tags=["gdm", "egress"],
 ) as dag:
 
-    latest_portugal_file = PythonOperator(
-        task_id="latest_portugal_file",
-        python_callable=extract_portugal_data
+    extract_and_push_to_sheet = PythonOperator(
+        task_id="extract_and_push_to_sheet",
+        python_callable=extract_portugal_data,
+        op_kwargs={
+            "spreadsheet_id": "{{ var.value.portugal_spreadsheet_id }}",
+            "worksheet_name": "{{ var.value.portugal_worksheet_name }}",
+        },
     )
