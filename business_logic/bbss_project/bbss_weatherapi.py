@@ -1,42 +1,49 @@
-from datetime import datetime, timedelta, timezone
-
-import awswrangler as wr
-import pandas as pd
+from datetime import datetime, timezone
 import requests
 from airflow.sdk import Variable
+from plugins.pandas_helper import normalize_weather_forecast
+from plugins.date_time import get_next_day_utc
+from plugins.s3_helper import write_df_to_s3
 
 
-def fetch_weatherapi_data():
-    api_key = Variable.get("WEATHERAPI_KEY").strip()
+def fetch_weatherapi_data(**context):
+    """
+    Fetches WeatherAPI forecast data for Mallorca and writes to S3.
+    Fully backfill-safe and config-driven.
+    """
+    execution_date = context.get("execution_date")
 
-    next_day_str = (
-        datetime.now(timezone.utc).date() + timedelta(days=1)
-    ).strftime("%Y-%m-%d")
+    config = Variable.get("BBS_CONFIG", deserialize_json=True)
+    weather_config = config["weatherapi"]
 
-    params = {
-        "key": api_key,
-        "q": "Mallorca",
-        "dt": next_day_str
-    }
+    api_key = weather_config["api_key"]
+    bucket_name = weather_config["bucket_name"]
+    folder_name = weather_config["folder_name"]
+    location = weather_config["location"]
+
+    next_day_date = get_next_day_utc(execution_date)
+    forecast_date = next_day_date.strftime("%Y-%m-%d")
 
     url = "https://api.weatherapi.com/v1/forecast.json"
+    params = {
+        "key": api_key,
+        "q": location,
+        "dt": forecast_date
+    }
+
     response = requests.get(url, params=params, timeout=30)
     response.raise_for_status()
-    json_data = response.json()
+    forecast_response_data = response.json()
 
-    df = pd.json_normalize(json_data["forecast"]["forecastday"][0]["hour"])
-    df["ingested_at"] = datetime.now(timezone.utc)
+    df = normalize_weather_forecast(forecast_response_data)
 
-    bucket_name = "federated-engineers-production-elite-balearic"
-    folder_name = "weather_data"
+    ingestion_timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    file_name = f"{ingestion_timestamp}.parquet"
 
-    timestamp_str = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-    unique_file = f"{timestamp_str}.parquet"
-
-    s3_path = f"s3://{bucket_name}/{folder_name}/{unique_file}"
-
-    wr.s3.to_parquet(
-     df=df,
-     path=s3_path,
-     dataset=False
+    return write_df_to_s3(
+        df=df,
+        bucket_name=bucket_name,
+        folder_name=folder_name,
+        file_name=file_name,
+        dataset=False
     )

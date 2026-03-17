@@ -7,13 +7,9 @@ from business_logic.bbss_project.bbss_weatherapi import fetch_weatherapi_data
 
 default_args = {
     'owner': 'federatedengineers',
-    'depends_on_past': False,
-    'email_on_failure': False,
-    'email_on_retry': False,
     'retries': 2,
     'retry_delay': timedelta(minutes=5),
 }
-
 
 dag = DAG(
     'bbss_weather_data_api_data_pipeline',
