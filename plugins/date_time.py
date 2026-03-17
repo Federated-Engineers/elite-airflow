@@ -15,6 +15,3 @@ def get_next_day_utc(execution_date: datetime = None):
     if execution_date is None:
         execution_date = datetime.now(timezone.utc)
     return execution_date.date() + timedelta(days=1)
-
-
-
