@@ -16,6 +16,10 @@ default_args = {
     "retry_delay": timedelta(minutes=5),
 }
 
+SPREADSHEET_ID = "1EJZr940oGXcAVr0KS5nMhmh7VzdYixojkrwquYpZyXw"
+WORKSHEET_NAME = "Backfill"
+
+
 with DAG(
     dag_id="gdm_egress",
     default_args=default_args,

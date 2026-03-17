@@ -1,19 +1,36 @@
 import logging
 from datetime import datetime, timezone
 
+import logging
+from datetime import datetime, timezone
+
 import awswrangler as wr
 import boto3
 from airflow.sdk import Variable
-
 from business_logic.gdm.google_sheets import append_dataframe_to_sheet
 
 logger = logging.getLogger(__name__)
 
-BUCKET = "gdm-raw-data"
-FOLDER = "daily_extracts"
-S3_PATH = f"s3://{BUCKET}/{FOLDER}"
+bucket = "gdm-raw-data"
+folder = "daily_extracts"
+s3_path = f"s3://{bucket}/{folder}"
 
 
+def extract_portugal_data(spreadsheet_id, worksheet_name):
+    """Extracts Portugal data from the latest parquet file in S3 and appends
+    it to a Google Sheet. If a backfill file is specified in Airflow Variables,
+    it processes that file instead.
+
+    Args:
+        spreadsheet_id: The ID of the Google Sheet to append data to
+        worksheet_name: The name of the worksheet within the Google Sheet
+        to append data to.
+    Returns:
+        A DataFrame containing the Portugal data that was processed and
+        written to Google Sheets.
+    """
+
+    logger.info("Starting Portugal data extraction pipeline")
 def extract_portugal_data(spreadsheet_id, worksheet_name):
     """Extracts Portugal data from the latest parquet file in S3 and appends
     it to a Google Sheet. If a backfill file is specified in Airflow Variables,
@@ -32,16 +49,15 @@ def extract_portugal_data(spreadsheet_id, worksheet_name):
 
     s3 = boto3.client("s3")
     response = s3.list_objects_v2(
-        Bucket=BUCKET,
-        Prefix=f"{FOLDER}/",
+        Bucket=bucket,
+        Prefix=f"{folder}/"
     )
 
     files = response.get("Contents", [])
 
     if len(files) == 0:
-        raise ValueError(f"No file found in {S3_PATH}")
-
-    logger.info(f"{len(files)} file(s) found in {S3_PATH}")
+        raise ValueError(f"No file found in {s3_path}")
+    logger.info(f"{len(files)} file(s) found in {s3_path}")
 
     backfilled_object = Variable.get("backfill_file", default=None)
 
@@ -53,17 +69,14 @@ def extract_portugal_data(spreadsheet_id, worksheet_name):
 
         df = wr.s3.read_parquet(file_path)
         df_portugal = df[df["plant_country"] == "Portugal"]
-
         logger.info(f"{len(df_portugal)} Backfill Portugal rows extracted")
 
         Variable.delete("backfill_file")
         logger.info("Backfill file processed and variable cleared")
 
     else:
-
         latest_object = max(files, key=lambda x: x["LastModified"])
-        latest_file = f"s3://{BUCKET}/{latest_object['Key']}"
-
+        latest_file = f"s3://{bucket}/{latest_object['Key']}"
         logger.info(f"Latest file: {latest_file}")
 
         last_modified = latest_object["LastModified"]
@@ -79,7 +92,6 @@ def extract_portugal_data(spreadsheet_id, worksheet_name):
         logger.info("Reading recent file completed")
 
         df_portugal = df[df["plant_country"] == "Portugal"]
-
         logger.info(f"{len(df_portugal)} Portugal data extracted successfully")
 
     if df_portugal.empty:
@@ -87,13 +99,11 @@ def extract_portugal_data(spreadsheet_id, worksheet_name):
         return df_portugal
 
     logger.info("Writing Portugal data to Google Sheets")
-
     append_dataframe_to_sheet(
         df_portugal,
         spreadsheet_id,
-        worksheet_name,
+        worksheet_name
     )
 
     logger.info("Portugal data successfully written to Google Sheets")
-
     return df_portugal
