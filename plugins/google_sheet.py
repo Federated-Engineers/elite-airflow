@@ -5,7 +5,7 @@ import gspread
 from aws import get_ssm_parameter
 
 
-def get_data_from_gsheet(gsheet_id: str, ssm_name: str) -> list:
+def get_data_from_gsheet(gsheet_id: str, ssm_paramter_name: str) -> list:
     """
     A function that ingests data from Googlesheet given the gsheet_id
     Args:
@@ -19,7 +19,7 @@ def get_data_from_gsheet(gsheet_id: str, ssm_name: str) -> list:
 
     logging.info('Starting data ingestion from Googlesheet')
 
-    gsheet_credential = json.loads(get_ssm_parameter(ssm_name))
+    gsheet_credential = json.loads(get_ssm_parameter(ssm_paramter_name))
 
     gsheet_client = gspread.service_account_from_dict(gsheet_credential)
 
