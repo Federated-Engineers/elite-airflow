@@ -9,16 +9,15 @@ from business_logic.gdm.gdm_script import extract_portugal_data
 spreadsheet_id = Variable.get("portugal_spreadsheet_id")
 worksheet_name = Variable.get("portugal_worksheet_name")
 
+# spreadsheet_id = "1EJZr940oGXcAVr0KS5nMhmh7VzdYixojkrwquYpZyXw"
+# worksheet_name = "Sheet1"
+
 default_args = {
     "owner": "gdm",
     "start_date": datetime(2026, 1, 1),
     "retries": 2,
     "retry_delay": timedelta(minutes=5),
 }
-
-SPREADSHEET_ID = "1EJZr940oGXcAVr0KS5nMhmh7VzdYixojkrwquYpZyXw"
-WORKSHEET_NAME = "Backfill"
-
 
 with DAG(
     dag_id="gdm_egress",

@@ -1,12 +1,10 @@
 import logging
 from datetime import datetime, timezone
 
-import logging
-from datetime import datetime, timezone
-
 import awswrangler as wr
 import boto3
 from airflow.sdk import Variable
+
 from business_logic.gdm.google_sheets import append_dataframe_to_sheet
 
 logger = logging.getLogger(__name__)
@@ -16,21 +14,6 @@ folder = "daily_extracts"
 s3_path = f"s3://{bucket}/{folder}"
 
 
-def extract_portugal_data(spreadsheet_id, worksheet_name):
-    """Extracts Portugal data from the latest parquet file in S3 and appends
-    it to a Google Sheet. If a backfill file is specified in Airflow Variables,
-    it processes that file instead.
-
-    Args:
-        spreadsheet_id: The ID of the Google Sheet to append data to
-        worksheet_name: The name of the worksheet within the Google Sheet
-        to append data to.
-    Returns:
-        A DataFrame containing the Portugal data that was processed and
-        written to Google Sheets.
-    """
-
-    logger.info("Starting Portugal data extraction pipeline")
 def extract_portugal_data(spreadsheet_id, worksheet_name):
     """Extracts Portugal data from the latest parquet file in S3 and appends
     it to a Google Sheet. If a backfill file is specified in Airflow Variables,
