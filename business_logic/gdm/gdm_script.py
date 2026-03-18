@@ -43,7 +43,7 @@ def extract_portugal_data(spreadsheet_id, worksheet_name):
 
     logger.info(f"{len(files)} file(s) found in {S3_PATH}")
 
-    backfilled_object = Variable.get("backfill_file", default_var=None)
+    backfilled_object = Variable.get("backfill_file", default=None)
 
     if backfilled_object:
         logger.info(f"Backfill detected. Processing file: {backfilled_object}")
