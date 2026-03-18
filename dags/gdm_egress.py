@@ -1,9 +1,13 @@
 from datetime import datetime, timedelta
 
 from airflow import DAG
+from airflow.models import Variable
 from airflow.providers.standard.operators.python import PythonOperator
 
 from business_logic.gdm.gdm_script import extract_portugal_data
+
+spreadsheet_id = Variable.get("portugal_spreadsheet_id")
+worksheet_name = Variable.get("portugal_worksheet_name")
 
 default_args = {
     "owner": "gdm",
@@ -25,7 +29,7 @@ with DAG(
         task_id="extract_and_push_to_sheet",
         python_callable=extract_portugal_data,
         op_kwargs={
-            "spreadsheet_id": "{{ var.value.portugal_spreadsheet_id }}",
-            "worksheet_name": "{{ var.value.portugal_worksheet_name }}",
+            "spreadsheet_id": spreadsheet_id,
+            "worksheet_name": worksheet_name,
         },
     )
