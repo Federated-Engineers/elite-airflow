@@ -12,6 +12,6 @@ def get_ssm_parameter(ssm_paramter_name: str):
                 'ssm',
                 region_name='eu-central-1',
         )
-    response = client.get_parameter(Name=ssm_paramter_name, WithDecryption=True)
+    response = client.get_parameter(ssm_paramter_name, WithDecryption=True)
     ssm_params_value = response['Parameter']['Value']
     return ssm_params_value
