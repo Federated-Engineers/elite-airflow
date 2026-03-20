@@ -67,7 +67,7 @@ def extract_portugal_data(spreadsheet_id, worksheet_name):
         today = datetime.now(timezone.utc)
         date_difference = (today.date() - last_modified.date()).days
 
-        if date_difference > 13:
+        if date_difference > 20:
             logger.info("No new file to process today.")
             return None
 

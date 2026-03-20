@@ -1,10 +1,14 @@
 from datetime import datetime, timedelta
+import logging
 
 from airflow import DAG
 from airflow.models import Variable
 from airflow.providers.standard.operators.python import PythonOperator
 
 from business_logic.gdm.s3_to_gsheets_extract import extract_portugal_data
+
+
+logger = logging.getLogger(__name__)
 
 # spreadsheet_id = Variable.get("portugal_spreadsheet_id")
 # worksheet_name = Variable.get("portugal_worksheet_name") 
@@ -20,12 +24,12 @@ default_args = {
 }
 
 with DAG(
-    dag_id="gdm_egress",
+    dag_id="gdm_s3_to_gsheets",
     default_args=default_args,
     schedule="0 8 * * *",
     description="Extract Portugal data from S3 and push to Google Sheets",
     catchup=False,
-    tags=["gdm", "egress"],
+    tags=["gdm", "s3", "google_sheets"],
 ) as dag:
 
     extract_and_push_to_sheet = PythonOperator(

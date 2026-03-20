@@ -1,9 +1,12 @@
 import json
+import logging
 
 import gspread
 from google.oauth2.service_account import Credentials
 
 from plugins.aws import get_ssm_parameter
+
+logger = logging.getLogger(__name__)
 
 SSM_PATH = "/production/google-service-account/credentials"
 
@@ -24,4 +27,5 @@ def get_google_sheets_client():
         scopes=SCOPES,
     )
 
+    logger.info("Google Sheets authentication successful")
     return gspread.authorize(credentials)
