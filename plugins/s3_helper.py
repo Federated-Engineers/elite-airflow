@@ -1,8 +1,8 @@
 import logging
 from datetime import datetime, timezone
 
-import boto3
 import awswrangler as wr
+import boto3
 
 logger = logging.getLogger(__name__)
 
