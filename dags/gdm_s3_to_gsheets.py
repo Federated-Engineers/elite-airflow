@@ -1,5 +1,5 @@
-from datetime import datetime, timedelta
 import logging
+from datetime import datetime, timedelta
 
 from airflow import DAG
 from airflow.models import Variable
@@ -7,14 +7,13 @@ from airflow.providers.standard.operators.python import PythonOperator
 
 from business_logic.gdm.s3_to_gsheets_extract import extract_portugal_data
 
-
 logger = logging.getLogger(__name__)
 
-# spreadsheet_id = Variable.get("portugal_spreadsheet_id")
-# worksheet_name = Variable.get("portugal_worksheet_name") 
+spreadsheet_id = Variable.get("portugal_spreadsheet_id")
+worksheet_name = Variable.get("portugal_worksheet_name")
 
-spreadsheet_id = "1EJZr940oGXcAVr0KS5nMhmh7VzdYixojkrwquYpZyXw"
-worksheet_name = "Sheet1"
+# spreadsheet_id = "1EJZr940oGXcAVr0KS5nMhmh7VzdYixojkrwquYpZyXw"
+# worksheet_name = "Sheet1"
 
 default_args = {
     "owner": "gdm",

@@ -7,44 +7,44 @@ import awswrangler as wr
 logger = logging.getLogger(__name__)
 
 
-def get_latest_s3_file(bucket: str, prefix: str) -> str | None:
+def get_latest_s3_file(bucket: str, folder: str,
+                       last_date: int = 1):
     """
-    Returns the S3 path of the most recently modified file under a given prefix.
-    Returns None if the latest file is older than 13 days.
+    A function that returns the path of the last modified data
+    in an S3 bucket.
 
     Args:
         bucket: S3 bucket name.
-        prefix: Folder prefix to search in (e.g. "daily_extracts").
-
+        folder: Folder name to search in.
+        last_date: Number of days to look back for modified files
+        (default is 1 day).
     Returns:
-        The S3 path (e.g. "s3://bucket/prefix/file.parquet") of the latest file,
-        or None if no new file to process.
-
-    Raises:
-        ValueError: If no files are found under the given prefix.
+        The S3 path of the latest file, or None if no new file to
+        process.
     """
+
     s3 = boto3.client("s3")
-    response = s3.list_objects_v2(Bucket=bucket, Prefix=f"{prefix}/")
+    response = s3.list_objects_v2(Bucket=bucket, Folder=f"{folder}/")
     files = response.get("Contents", [])
 
     if not files:
-        raise ValueError(f"No files found in s3://{bucket}/{prefix}")
+        raise ValueError(f"No files found in s3://{bucket}/{folder}")
 
-    logger.info(f"{len(files)} file(s) found in s3://{bucket}/{prefix}")
+    logger.info(f"{len(files)} file(s) found in s3://{bucket}/{folder}")
 
-    latest = max(files, key=lambda x: x["LastModified"])
-    last_modified = latest["LastModified"]
+    latest_object = max(files, key=lambda x: x["LastModified"])
+    last_modified = latest_object["LastModified"]
 
     today = datetime.now(timezone.utc)
     date_difference = (today.date() - last_modified.date()).days
 
-    if date_difference > 13:
+    if date_difference > last_date:
         logger.info("No new file to process today.")
         return None
 
-    latest_path = f"s3://{bucket}/{latest['Key']}"
-    logger.info(f"Latest file: {latest_path}")
-    return latest_path
+    latest_file_path = f"s3://{bucket}/{latest_object['Key']}"
+    logger.info(f"Latest file: {latest_file_path}")
+    return latest_file_path
 
 
 def write_df_to_s3(df, bucket_name, folder_name, file_name, dataset=False):
