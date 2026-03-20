@@ -7,7 +7,7 @@ from airflow.providers.standard.operators.python import PythonOperator
 from business_logic.gdm.gdm_script import extract_portugal_data
 
 # spreadsheet_id = Variable.get("portugal_spreadsheet_id")
-# worksheet_name = Variable.get("portugal_worksheet_name")
+# worksheet_name = Variable.get("portugal_worksheet_name") 
 
 spreadsheet_id = "1EJZr940oGXcAVr0KS5nMhmh7VzdYixojkrwquYpZyXw"
 worksheet_name = "Sheet1"
