@@ -5,7 +5,7 @@ import awswrangler as wr
 import boto3
 from airflow.sdk import Variable
 
-from business_logic.gdm.google_sheets import append_dataframe_to_sheet
+from plugins.push_to_gsheet import append_dataframe_to_sheet
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +79,6 @@ def extract_portugal_data(spreadsheet_id, worksheet_name):
 
     if df_portugal.empty:
         logger.warning("No Portugal data found in the file.")
-        return df_portugal
 
     logger.info("Writing Portugal data to Google Sheets")
     append_dataframe_to_sheet(
@@ -89,4 +88,3 @@ def extract_portugal_data(spreadsheet_id, worksheet_name):
     )
 
     logger.info("Portugal data successfully written to Google Sheets")
-    return df_portugal

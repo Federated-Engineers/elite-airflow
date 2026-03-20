@@ -4,7 +4,7 @@ from airflow import DAG
 from airflow.models import Variable
 from airflow.providers.standard.operators.python import PythonOperator
 
-from business_logic.gdm.gdm_script import extract_portugal_data
+from business_logic.gdm.s3_to_gsheets_extract import extract_portugal_data
 
 # spreadsheet_id = Variable.get("portugal_spreadsheet_id")
 # worksheet_name = Variable.get("portugal_worksheet_name") 
