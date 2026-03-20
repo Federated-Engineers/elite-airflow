@@ -14,7 +14,7 @@ def append_dataframe_to_sheet(df, spreadsheet_id: str,
         spreadsheet_id: The ID of the Google Sheet.
         worksheet_name: The name of the worksheet to append to.
     """
-    
+
     gc = get_google_sheets_client()
     spreadsheet = gc.open_by_key(spreadsheet_id)
     worksheet = spreadsheet.worksheet(worksheet_name)

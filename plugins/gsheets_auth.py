@@ -20,7 +20,7 @@ def get_google_sheets_client():
     """
     Authenticate with Google Sheets using credentials stored in AWS SSM.
     """
-    
+
     credentials_dict = json.loads(get_ssm_parameter(SSM_PATH))
 
     credentials = Credentials.from_service_account_info(
