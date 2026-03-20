@@ -20,4 +20,4 @@ def append_dataframe_to_sheet(df, spreadsheet_id: str, worksheet_name: str) -> N
 
     rows = df.values.tolist()
     worksheet.append_rows(rows)
-    logger.info(f"Appended {len(rows)} rows to '{worksheet_name}'")
+    logger.info(f"Appended {len(rows)} rows to {worksheet_name}")

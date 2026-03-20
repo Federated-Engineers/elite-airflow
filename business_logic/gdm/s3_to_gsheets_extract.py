@@ -5,13 +5,13 @@ import awswrangler as wr
 import boto3
 from airflow.sdk import Variable
 
-from plugins.push_to_gsheet import append_dataframe_to_sheet
+from plugins.append_to_gsheet import append_dataframe_to_sheet
 
 logger = logging.getLogger(__name__)
 
-bucket = "gdm-raw-data"
-folder = "daily_extracts"
-s3_path = f"s3://{bucket}/{folder}"
+BUCKET = "gdm-raw-data"
+FOLDER = "daily_extracts"
+S3_PATH = f"s3://{BUCKET}/{FOLDER}"
 
 
 def extract_portugal_data(spreadsheet_id, worksheet_name):
@@ -32,15 +32,15 @@ def extract_portugal_data(spreadsheet_id, worksheet_name):
 
     s3 = boto3.client("s3")
     response = s3.list_objects_v2(
-        Bucket=bucket,
-        Prefix=f"{folder}/"
+        Bucket=BUCKET,
+        Prefix=f"{FOLDER}/"
     )
 
     files = response.get("Contents", [])
 
     if len(files) == 0:
-        raise ValueError(f"No file found in {s3_path}")
-    logger.info(f"{len(files)} file(s) found in {s3_path}")
+        raise ValueError(f"No file found in {S3_PATH}")
+    logger.info(f"{len(files)} file(s) found in {S3_PATH}")
 
     backfilled_object = Variable.get("backfill_file", default=None)
 
@@ -59,7 +59,7 @@ def extract_portugal_data(spreadsheet_id, worksheet_name):
 
     else:
         latest_object = max(files, key=lambda x: x["LastModified"])
-        latest_file = f"s3://{bucket}/{latest_object['Key']}"
+        latest_file = f"s3://{BUCKET}/{latest_object['Key']}"
         logger.info(f"Latest file: {latest_file}")
 
         last_modified = latest_object["LastModified"]
