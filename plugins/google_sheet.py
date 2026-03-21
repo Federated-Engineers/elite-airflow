@@ -2,7 +2,6 @@ import json
 import logging
 
 import gspread
-
 from aws import get_ssm_parameter
 
 
