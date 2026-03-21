@@ -39,15 +39,14 @@ def fetch_weatherapi_data(**context):
 
     else:
         next_day_date = get_next_day_utc()
-        forecast_date = next_day_date.strftime("%Y-%m-%d")
 
         url = "https://api.weatherapi.com/v1/forecast.json"
         params = {
             "key": api_key,
             "q": location,
-            "dt": forecast_date
+            "dt": next_day_date
         }
-    # print(f"Running forecast for date: {forecast_date}")
+    # print(f"Running forecast for date: {next_day_date}")
 
     response = requests.get(url, params=params)
     response.raise_for_status()
