@@ -14,6 +14,7 @@ def get_current_datetime():
     current_datetime = datetime.datetime.now().strftime("%d-%m-%Y_%H:%M:%S")
     return current_datetime
 
+
 def get_next_day_utc():
     """
     Returns the next day's date in UTC.
@@ -22,3 +23,4 @@ def get_next_day_utc():
         datetime.date: Next day's date in UTC.
     """
     return datetime.now(timezone.utc).date() + timedelta(days=1)
+
