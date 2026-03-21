@@ -1,5 +1,5 @@
-import datetime
 import logging
+from datetime import datetime, timedelta, timezone
 
 
 def get_current_datetime():
@@ -13,10 +13,6 @@ def get_current_datetime():
     logging.info("Getting the current date and time of ingestion")
     current_datetime = datetime.datetime.now().strftime("%d-%m-%Y_%H:%M:%S")
     return current_datetime
-
-
-from datetime import datetime, timedelta, timezone
-
 
 def get_next_day_utc():
     """
