@@ -23,4 +23,3 @@ def get_next_day_utc():
         datetime.date: Next day's date in UTC.
     """
     return datetime.now(timezone.utc).date() + timedelta(days=1)
-
