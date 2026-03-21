@@ -17,6 +17,7 @@ def get_current_datetime():
 
 from datetime import datetime, timedelta, timezone
 
+
 def get_next_day_utc():
     """
     Returns the next day's date in UTC.

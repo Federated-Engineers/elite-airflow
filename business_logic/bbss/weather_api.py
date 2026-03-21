@@ -2,7 +2,6 @@ from datetime import datetime, timezone
 
 import requests
 from airflow.models import Variable
-
 from plugins.date_utils import get_next_day_utc
 from plugins.pandas_helper import pandas_json_normalizer
 from plugins.s3_helper import write_df_to_s3
