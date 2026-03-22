@@ -32,7 +32,7 @@ def get_latest_s3_file(bucket: str, folder: str):
 
     latest_object = max(files, key=lambda x: x["LastModified"])
 
-    #last_modified = latest_object["LastModified"]
+    # last_modified = latest_object["LastModified"]
     # today = datetime.now(timezone.utc)
     # date_difference = (today.date() - last_modified.date()).days
 
