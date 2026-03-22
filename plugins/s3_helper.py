@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timezone
+# from datetime import datetime, timezone
 
 import awswrangler as wr
 import boto3
@@ -7,8 +7,7 @@ import boto3
 logger = logging.getLogger(__name__)
 
 
-def get_latest_s3_file(bucket: str, folder: str,
-                       last_date: int = 1):
+def get_latest_s3_file(bucket: str, folder: str):
     """
     A function that returns the path of the last modified data
     in an S3 bucket.
@@ -16,11 +15,8 @@ def get_latest_s3_file(bucket: str, folder: str,
     Args:
         bucket: S3 bucket name.
         folder: Folder name to search in.
-        last_date: Number of days to look back for modified files
-        (default is 1 day).
     Returns:
-        The S3 path of the latest file, or None if no new file to
-        process.
+        The S3 path of the latest file.
     """
 
     s3 = boto3.client("s3")
@@ -33,14 +29,14 @@ def get_latest_s3_file(bucket: str, folder: str,
     logger.info(f"{len(files)} file(s) found in s3://{bucket}/{folder}")
 
     latest_object = max(files, key=lambda x: x["LastModified"])
-    last_modified = latest_object["LastModified"]
 
-    today = datetime.now(timezone.utc)
-    date_difference = (today.date() - last_modified.date()).days
+    #last_modified = latest_object["LastModified"]
+    # today = datetime.now(timezone.utc)
+    # date_difference = (today.date() - last_modified.date()).days
 
-    if date_difference > last_date:
-        logger.info("No new file to process today.")
-        return None
+    # if date_difference > last_date:
+    #     logger.info("No new file to process today.")
+    #     return None
 
     latest_file_path = f"s3://{bucket}/{latest_object['Key']}"
     logger.info(f"Latest file: {latest_file_path}")

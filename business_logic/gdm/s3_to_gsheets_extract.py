@@ -3,13 +3,14 @@ import logging
 import awswrangler as wr
 from airflow.sdk import Variable
 
-from plugins.append_to_gsheet import append_dataframe_to_sheet
+from plugins.google_sheet import append_dataframe_to_sheet
 from plugins.s3_helper import get_latest_s3_file
 
 logger = logging.getLogger(__name__)
 
 BUCKET = "gdm-raw-data"
 FOLDER = "daily_extracts"
+SSM_PATH = "/production/google-service-account/credentials"
 
 
 def extract_portugal_data(spreadsheet_id, worksheet_name):
@@ -22,8 +23,7 @@ def extract_portugal_data(spreadsheet_id, worksheet_name):
         worksheet_name: The name of the worksheet within the Google Sheet
             to append data to.
     Returns:
-        None if no new file to process or appends data Portugal data to
-        Google Sheets.
+        Appends Portugal data to Google Sheets.
     """
 
     logger.info("Starting Portugal data extraction pipeline")
@@ -42,10 +42,7 @@ def extract_portugal_data(spreadsheet_id, worksheet_name):
         logger.info("Backfill file processed and variable cleared")
 
     else:
-        latest_file = get_latest_s3_file(BUCKET, FOLDER, last_date=20)
-        if latest_file is None:
-            return None
-
+        latest_file = get_latest_s3_file(BUCKET, FOLDER)
         df = wr.s3.read_parquet(latest_file)
         logger.info("Reading recent file completed")
 
@@ -57,5 +54,6 @@ def extract_portugal_data(spreadsheet_id, worksheet_name):
 
     logger.info("Writing Portugal data to Google Sheets")
 
-    append_dataframe_to_sheet(df_portugal, spreadsheet_id, worksheet_name)
+    append_dataframe_to_sheet(df_portugal, spreadsheet_id, SSM_PATH,
+                              worksheet_name)
     logger.info("Portugal data successfully written to Google Sheets")

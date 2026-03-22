@@ -4,11 +4,12 @@ import awswrangler as wr
 import pandas as pd
 
 from plugins.date_utils import get_current_datetime
-from plugins.ingest_from_gsheet import get_data_from_gsheet
+from plugins.google_sheet import get_data_from_gsheet
 
 logging.basicConfig(level=logging.INFO)
 
 SHEET_KEY = "1IIr3cYvnT7T7IWMD-naJ-IqghvOgP5aFEybT-7ecO2w"
+SSM_PATH = "/production/google-service-account/credentials"
 
 filename = "repairs.csv"
 project_dir = "alpen_mechanik"
@@ -37,7 +38,7 @@ def extract_sheet_to_s3_sftp() -> None:
 
     logging.info("Storage destinations defined.....")
 
-    data = get_data_from_gsheet(SHEET_KEY)
+    data = get_data_from_gsheet(SHEET_KEY, SSM_PATH)
 
     df = pd.DataFrame(data)
 
