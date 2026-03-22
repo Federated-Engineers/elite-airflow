@@ -2,31 +2,76 @@ import json
 import logging
 
 import gspread
-from aws import get_ssm_parameter
+from google.oauth2.service_account import Credentials
+
+from plugins.aws import get_ssm_parameter
+
+logger = logging.getLogger(__name__)
+
+SCOPES = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive"]
 
 
-def get_data_from_gsheet(gsheet_id: str, ssm_paramter_name: str) -> list:
+def get_google_sheets_client(ssm_path: str):
     """
-    A function that ingests data from Googlesheet given the gsheet_id
+    Authenticate with Google Sheets using credentials stored in AWS SSM.
+
     Args:
-        String
-            - gsheet_id: The Googlesheet id/key
-            - ssm_name: The SSM Paramter Name
-    Returns:
-        List of records
-            - A List of lists
+        ssm_path: The SSM parameter path where the Google service
+        account credentials are stored.
     """
 
-    logging.info('Starting data ingestion from Googlesheet')
+    credentials_dict = json.loads(get_ssm_parameter(ssm_path))
 
-    gsheet_credential = json.loads(get_ssm_parameter(ssm_paramter_name))
+    credentials = Credentials.from_service_account_info(
+        credentials_dict,
+        scopes=SCOPES,
+    )
 
-    gsheet_client = gspread.service_account_from_dict(gsheet_credential)
+    logger.info("Google Sheets authentication successful")
+    return gspread.authorize(credentials)
 
-    workbook = gsheet_client.open_by_key(gsheet_id)
+
+def get_data_from_gsheet(gsheet_id: str, ssm_path: str):
+    """Ingest all records from the first worksheet of a Google Sheet.
+
+    Args:
+        gsheet_id: The Google Sheet ID/key.
+        ssm_path: The SSM parameter path where the Google service account
+        credentials are stored.
+    Returns:
+        A list of records from the sheet.
+    """
+
+    logger.info("Starting data ingestion from Google Sheet")
+
+    gc = get_google_sheets_client(ssm_path)
+    workbook = gc.open_by_key(gsheet_id)
     worksheet = workbook.sheet1
 
-    logging.info('Data Ingestion Completed')
     data = worksheet.get_all_records()
+    logger.info("Data ingestion completed")
 
     return data
+
+
+def append_dataframe_to_sheet(df, spreadsheet_id: str, ssm_path: str,
+                              worksheet_name: str):
+    """Append dataframe rows to a Google Sheet worksheet.
+
+    Args:
+        df: The pandas DataFrame to append.
+        spreadsheet_id: The ID of the Google Sheet.
+        ssm_path: The SSM parameter path where the Google service account
+        credentials are stored.
+        worksheet_name: The name of the worksheet to append to.
+    """
+
+    gc = get_google_sheets_client(ssm_path)
+    spreadsheet = gc.open_by_key(spreadsheet_id)
+    worksheet = spreadsheet.worksheet(worksheet_name)
+
+    rows = df.values.tolist()
+    worksheet.append_rows(rows)
+    logger.info(f"Appended {len(rows)} rows to {worksheet_name}")

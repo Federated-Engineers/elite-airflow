@@ -3,4 +3,3 @@ Faker==40.8.0
 boto3==1.42.63
 gspread==6.2.1
 google-auth==2.49.0
-google-api-python-client==2.192.0
