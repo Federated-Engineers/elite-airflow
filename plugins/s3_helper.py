@@ -1,8 +1,10 @@
 import logging
-# from datetime import datetime, timezone
 
 import awswrangler as wr
 import boto3
+
+# from datetime import datetime, timezone
+
 
 logger = logging.getLogger(__name__)
 
