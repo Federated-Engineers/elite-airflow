@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 import requests
 from airflow.models import Variable
 
-from plugins.date_time import get_next_day_utc
+from plugins.date_utils import get_next_day_utc
 from plugins.pandas_helper import pandas_json_normalizer
 from plugins.s3_helper import write_df_to_s3
 
@@ -38,19 +38,17 @@ def fetch_weatherapi_data(**context):
         print(f"Running backfill for date: {backfill_date}")
 
     else:
-        execution_date = context["execution_date"]
-        next_day_date = get_next_day_utc(execution_date)
-        forecast_date = next_day_date.strftime("%Y-%m-%d")
+        next_day_date = get_next_day_utc()
 
         url = "https://api.weatherapi.com/v1/forecast.json"
         params = {
             "key": api_key,
             "q": location,
-            "dt": forecast_date
+            "dt": next_day_date
         }
-        print(f"Running forecast for date: {forecast_date}")
+    # print(f"Running forecast for date: {next_day_date}")
 
-    response = requests.get(url, params=params, timeout=30)
+    response = requests.get(url, params=params)
     response.raise_for_status()
     forecast_response_data = response.json()
 
