@@ -27,4 +27,3 @@ with DAG(
         python_callable=run_compaction,
         op_args=["2026-03-23"],
     )
-    
