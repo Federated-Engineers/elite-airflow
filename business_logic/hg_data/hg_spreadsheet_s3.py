@@ -1,8 +1,9 @@
-import pandas as pd
 import awswrangler as wr
+import pandas as pd
 from airflow.models import Variable
-from plugins.google_sheet import get_data_from_gsheet
+
 from plugins.date_utils import get_current_datetime
+from plugins.google_sheet import get_data_from_gsheet
 
 
 def write_lancy_to_s3():
@@ -47,3 +48,4 @@ def write_rhone_to_s3():
     df = pd.DataFrame(data)
 
     wr.s3.to_parquet(df, s3_path)
+
