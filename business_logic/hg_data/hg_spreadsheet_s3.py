@@ -48,4 +48,3 @@ def write_rhone_to_s3():
     df = pd.DataFrame(data)
 
     wr.s3.to_parquet(df, s3_path)
-
