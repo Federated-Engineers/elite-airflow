@@ -31,4 +31,4 @@ write_rhone_s3 = PythonOperator(
     python_callable=write_rhone_to_s3,
 )
 
-write_lancy_s3 >> write_rhone_s3
+[write_lancy_s3, write_rhone_s3]

@@ -6,45 +6,31 @@ from plugins.date_utils import get_current_datetime
 from plugins.google_sheet import get_data_from_gsheet
 
 
-def write_lancy_to_s3():
-    config = Variable.get("hg_config", deserialize_json=True)
+config = Variable.get("hg_config", deserialize_json=True)
+BUCKET_NAME = config["bucket_name"]
+FOLDER_NAME = config["folder_name"]
+SSM_PATH = config["ssm_path"]
 
-    bucket_name = config["bucket_name"]
-    folder_name = config["folder_name"]
-    ssm_path = config["ssm_path"]
 
-    spreadsheet_id = Variable.get("hg_lancy_sheet_id")
+def _write_sheet_to_s3(sheet_id_variable: str, dataset_name: str):
+    spreadsheet_id = Variable.get(sheet_id_variable)
+    current_date = get_current_datetime()
 
-    current_time = get_current_datetime()
+    s3_path = f"s3://{BUCKET_NAME}/{FOLDER_NAME}/raw/{dataset_name}/{current_date}.parquet"
 
-    s3_path = (
-        f"s3://{bucket_name}/{folder_name}/raw/lancy/"
-        f"lancy_{current_time}.parquet"
-    )
-
-    data = get_data_from_gsheet(spreadsheet_id, ssm_path)
+    data = get_data_from_gsheet(spreadsheet_id, SSM_PATH)
     df = pd.DataFrame(data)
 
-    wr.s3.to_parquet(df, s3_path)
+    wr.s3.to_parquet(
+        df=df,
+        path=s3_path,
+        dataset=False
+    )
+
+
+def write_lancy_to_s3():
+    _write_sheet_to_s3("hg_lancy_sheet_id", "lancy")
 
 
 def write_rhone_to_s3():
-    config = Variable.get("hg_config", deserialize_json=True)
-
-    bucket_name = config["bucket_name"]
-    folder_name = config["folder_name"]
-    ssm_path = config["ssm_path"]
-
-    spreadsheet_id = Variable.get("hg_rhone_sheet_id")
-
-    current_time = get_current_datetime()
-
-    s3_path = (
-        f"s3://{bucket_name}/{folder_name}/raw/rhone/"
-        f"rhone_{current_time}.parquet"
-    )
-
-    data = get_data_from_gsheet(spreadsheet_id, ssm_path)
-    df = pd.DataFrame(data)
-
-    wr.s3.to_parquet(df, s3_path)
+    _write_sheet_to_s3("hg_rhone_sheet_id", "rhone")
