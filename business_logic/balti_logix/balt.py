@@ -86,4 +86,3 @@ def run_compaction(target_date):
         "rows_written": len(df),
         "partitions": {"year": year, "month": month, "day": day}
     }
-
