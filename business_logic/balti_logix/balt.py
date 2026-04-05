@@ -5,7 +5,6 @@ from datetime import datetime
 import awswrangler as wr
 import boto3
 
-
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s"
@@ -87,4 +86,3 @@ def run_compaction(target_date):
         "rows_written": len(df),
         "partitions": {"year": year, "month": month, "day": day}
     }
-
