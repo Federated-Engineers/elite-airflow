@@ -1,11 +1,10 @@
-import os
-from plugins.aws import get_ssm_parameter
+import json
 
 import awswrangler as wr
-import json
-import boto3
 import pandas as pd
 import psycopg2
+
+from plugins.aws import get_ssm_parameter
 
 PROJECT_DIR = "LuminaBrick_Properties"
 BUCKET_NAME = "federated-engineers-staging-elite-data-lake"
@@ -13,15 +12,17 @@ SCHEMA_NAME = "historical"
 BUCKET_PATH = f"{BUCKET_NAME}/{PROJECT_DIR}"
 
 
-database_credentials = json.loads(get_ssm_parameter('/supabase/database/credentials'))
+db_cred = json.loads(get_ssm_parameter('/supabase/database/credentials'))
+
 
 def db_connection():
     return psycopg2.connect(
-        host=(database_credentials["host"]),
-        dbname=(database_credentials["database_name"]),
-        user=(database_credentials["username"]),
-        password=(database_credentials["password"]),
+        host=(db_cred["host"]),
+        dbname=(db_cred["database_name"]),
+        user=(db_cred["username"]),
+        password=(db_cred["password"]),
     )
+
 
 s3_base_path = f"s3://{BUCKET_PATH}"
 
@@ -85,5 +86,3 @@ def migrate_all_tables():
         migrate_one_table(schema_name, table_name, base_path)
 
     print("\nAll tables exported successfully.")
-
-
