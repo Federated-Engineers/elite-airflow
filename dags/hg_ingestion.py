@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
@@ -17,6 +17,9 @@ dag = DAG(
     default_args=default_args,
     schedule="0 8 * * *",
     description="Send Lancy and Rhone Google Sheets data to S3",
+    start_date=datetime(2026, 4, 1),
+    catchup=False,
+    tags=["hg", "ingestion", "s3"]
 )
 
 write_lancy_s3 = PythonOperator(
