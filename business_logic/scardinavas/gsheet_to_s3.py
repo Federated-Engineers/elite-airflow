@@ -1,5 +1,4 @@
 import logging
-from datetime import datetime
 
 import awswrangler as wr
 import pandas as pd
@@ -17,7 +16,7 @@ def gsheet_to_s3_dataset(
     path_dir: str,
     database: str,
     table_name: str,
-    date_column: str, 
+    date_column: str,
 ):
     data = get_data_from_gsheet(gsheet_id, ssm_path)
     df = pd.DataFrame(data)
@@ -45,4 +44,3 @@ def gsheet_to_s3_dataset(
         filename_prefix=f"{now}_",
         schema_evolution=True,
     )
-    
