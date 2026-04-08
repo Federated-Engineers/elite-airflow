@@ -16,7 +16,7 @@ FOLDER_NAME = config["folder_name"]
 SSM_PATH = config["ssm_path"]
 
 
-def _write_sheet_to_s3(sheet_id_variable: str, dataset_name: str):
+def write_sheet_to_s3(sheet_id_variable: str, dataset_name: str):
 
     sheet_data = get_data_from_gsheet(
         Variable.get(sheet_id_variable), SSM_PATH
@@ -27,21 +27,33 @@ def _write_sheet_to_s3(sheet_id_variable: str, dataset_name: str):
         logger.info(f"No data found in {dataset_name}. Skipping S3 write.")
         return
 
-    df = df.drop_duplicates()
+    hg_path = f"s3://{BUCKET_NAME}/{FOLDER_NAME}/raw/{dataset_name}/"
+
+    try:
+        existing_df = wr.s3.read_parquet(hg_path)
+    except Exception:
+        existing_df = pd.DataFrame()
+
+    if not existing_df.empty:
+        duplicates = df.merge(existing_df, how="inner")
+
+        if not duplicates.empty:
+            logger.warning(
+                f"Duplicate data found for {dataset_name}. Skipping S3 write."
+            )
+            return
 
     current_date = get_current_datetime()
-    s3_path = (
-        f"s3://{BUCKET_NAME}/{FOLDER_NAME}/raw/"
-        f"{dataset_name}/{current_date}.parquet"
-    )
+    s3_path = f"{hg_path}{current_date}.parquet"
 
     wr.s3.to_parquet(df=df, path=s3_path, dataset=False)
+
     logger.info(f"{dataset_name} data written to S3 at {s3_path}")
 
 
 def write_lancy_to_s3():
-    _write_sheet_to_s3("hg_lancy_sheet_id", "lancy")
+    write_sheet_to_s3("hg_lancy_sheet_id", "lancy")
 
 
 def write_rhone_to_s3():
-    _write_sheet_to_s3("hg_rhone_sheet_id", "rhone")
+    write_sheet_to_s3("hg_rhone_sheet_id", "rhone")
