@@ -48,7 +48,7 @@ def write_sheet_to_s3(sheet_id_variable: str, dataset_name: str):
 
     wr.s3.to_parquet(df=df, path=s3_path, dataset=False)
 
-    logger.info(f"{dataset_name} data written to S3 at {s3_path}")
+    logger.info(f"{dataset_name} data successfully written to S3 at {s3_path}")
 
 
 def write_lancy_to_s3():
