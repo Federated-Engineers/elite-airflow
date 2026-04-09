@@ -1,5 +1,7 @@
-import awswrangler as wr
 import logging
+
+import awswrangler as wr
+
 from plugins.date_utils import get_current_datetime
 from plugins.s3_helper import get_latest_s3_file, write_df_to_s3
 
@@ -20,17 +22,17 @@ def transform_and_upload():
     df_orders = wr.s3.read_parquet(path=path)
 
     logger.info("Transforming data.")
-    df_transformed = df_orders.merge(df_marketing, on="customer_id", how="left")
+    df_transformed = df_orders.merge(df_marketing, on="customer_id",
+                                     how="left")
 
     logger.info("Writing transformed data to S3.")
-    write_df_to_s3(
-        df=df_transformed,
-        bucket_name=BUCKET_NAME,
-        folder_name=f"{FOLDER}/transformed",
-        file_name=f"{get_current_datetime()}_transformed.parquet",
-        dataset=True,
-        database="liffey_luxury",
-        table="liffey_luxury_transformed",
-    )
+    write_df_to_s3(df=df_transformed,
+                   bucket_name=BUCKET_NAME,
+                   folder_name=f"{FOLDER}/transformed",
+                   file_name=f"{get_current_datetime()}_transformed.parquet",
+                   # dataset=True,
+                   # database="elite-liffey-luxury",
+                   # table="transformed_data"
+                   )
 
     logger.info("Data transformation and upload complete.")
