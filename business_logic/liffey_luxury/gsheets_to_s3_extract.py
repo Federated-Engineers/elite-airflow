@@ -57,27 +57,3 @@ def postgres_to_s3():
     wr.s3.to_parquet(df_orders, ORDERS_S3_PATH)
 
 postgres_to_s3()
-
-
-MARKETING_PREFIX = f"s3://{BUCKET_NAME}/{FOLDER}/raw/marketing/"
-ORDERS_PREFIX = f"s3://{BUCKET_NAME}/{FOLDER}/raw/orders/"
-TRANSFORMED_S3_PATH = f"s3://{BUCKET_NAME}/{FOLDER}/transformed/{current_time}_transformed.parquet"
-
-
-def get_last_modified_path(prefix: str) -> str:
-    objects = wr.s3.describe_objects(prefix)
-    last_modified_key = max(objects, key=lambda k: objects[k]["LastModified"])
-    return last_modified_key
-
-
-def join_and_upload():
-    marketing_path = get_last_modified_path(MARKETING_PREFIX)
-    orders_path = get_last_modified_path(ORDERS_PREFIX)
-
-    df_marketing = wr.s3.read_parquet(path=marketing_path)
-    df_orders = wr.s3.read_parquet(path=orders_path)
-
-    df_transformed = df_orders.merge(df_marketing, on="customer_id", how="left")
-
-    wr.s3.to_parquet(df_transformed, TRANSFORMED_S3_PATH)
-    print(f"Written to {TRANSFORMED_S3_PATH}")
