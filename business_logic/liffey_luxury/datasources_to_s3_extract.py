@@ -15,7 +15,6 @@ from plugins.google_sheet import get_data_from_gsheet
 
 
 SSM_PATH = "/production/google-service-account/credentials"
-GSHEET_ID = "1OUKw-fYdDN7HQw0hrTnKpP2yY9Gyqk0V4tuPeINWHF4"
 
 BUCKET_NAME = "federated-engineers-staging-elite-data-lake"
 FOLDER = "liffey_luxury"
@@ -25,13 +24,11 @@ MARKETING_S3_PATH = f"s3://{BUCKET_NAME}/{FOLDER}/raw/marketing/{current_time}_m
 ORDERS_S3_PATH = f"s3://{BUCKET_NAME}/{FOLDER}/raw/orders/{current_time}_orders.parquet"
 
 
-def gsheet_to_s3(gsheet_id: str, s3_path: str):
+def gsheet_to_s3(gsheet_id: str):
     """Extract data from a Google Sheet and write to S3 in Parquet format.
 
     Args:
         gsheet_id: The ID of the Google Sheet to extract data from.
-        s3_path: The S3 path (including bucket and prefix) to write the
-        Parquet file to.
     """
 
     data = get_data_from_gsheet(gsheet_id, SSM_PATH)
@@ -43,32 +40,32 @@ def gsheet_to_s3(gsheet_id: str, s3_path: str):
         logger.warning("No data found in the Google Sheet.")
         raise ValueError("No data to write to S3.")
 
-    wr.s3.to_parquet(df_marketing, s3_path)
-    logger.info(f"Data written to S3: {s3_path}")
-
-gsheet_to_s3(GSHEET_ID, MARKETING_S3_PATH)
+    wr.s3.to_parquet(df_marketing, MARKETING_S3_PATH)
+    logger.info(f"Data written to S3: {MARKETING_S3_PATH}")
 
 
 # PostgreSQL extraction
 query = """
     SELECT *
-    FROM historical.liffey_luxury_order_transactions
-    LIMIT 100;
+    FROM historical.liffey_luxury_order_transactions;
 """
 
-def postgres_to_s3(url: str, query: str, s3_path: str):
+def postgres_to_s3(url: str, query: str = query):
     """Extract data from a PostgreSQL database and write to S3 in Parquet format.
+
+    Args:
+        url: The environment variable name containing the database connection URL.
+        query: The SQL query to execute against the PostgreSQL database.
     """
 
     logger.info("Starting PostgreSQL to S3 extraction.")
 
-    db_url = os.getenv(url)
-    if not db_url:
+    if not url:
         logger.error("Database environment variable is not set.")
         raise ValueError("Database environment variable is missing")
     
     logger.info("Connecting to PostgreSQL database.")
-    engine = create_engine(db_url)
+    engine = create_engine(url)
 
     df_orders = pd.read_sql(query, engine)
     logger.info(f"Data extracted from PostgreSQL: {df_orders.shape[0]} rows")
@@ -77,7 +74,6 @@ def postgres_to_s3(url: str, query: str, s3_path: str):
         logger.warning("No data found in the PostgreSQL query.")
         raise ValueError("No data to write to S3.")
 
-    wr.s3.to_parquet(df_orders, s3_path)
-    logger.info(f"Data written to S3: {s3_path}")
+    wr.s3.to_parquet(df_orders, ORDERS_S3_PATH)
+    logger.info(f"Data written to S3: {ORDERS_S3_PATH}")
 
-postgres_to_s3("DATABASE_URL", query, ORDERS_S3_PATH)
