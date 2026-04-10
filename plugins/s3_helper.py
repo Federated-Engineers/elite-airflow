@@ -45,7 +45,7 @@ def get_latest_s3_file(bucket: str, prefix: str):
     return latest_file_path
 
 
-def write_df_to_s3(df, bucket_name, folder_name, file_name, 
+def write_df_to_s3(df, bucket_name, folder_name, file_name,
                    dataset=False, database=None, table=None):
     """
     Write a pandas DataFrame to S3 as a Parquet file.
