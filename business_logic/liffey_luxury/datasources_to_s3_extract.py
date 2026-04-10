@@ -56,7 +56,8 @@ def postgres_to_s3(url: str, query: str = query):
         url: The environment variable name containing the database
         connection URL.
         query: The SQL query to execute against the PostgreSQL
-        database.
+        database. Defaults to a query that selects all data from
+        the orders table.
     """
 
     logger.info("Starting PostgreSQL to S3 extraction.")

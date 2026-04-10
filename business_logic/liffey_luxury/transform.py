@@ -12,6 +12,10 @@ FOLDER = "liffey_luxury"
 
 
 def transform_and_upload():
+    """Read the latest marketing and orders data from S3,
+    joins them using customer_id, and writes the transformed
+    data back to S3 (transformed folder) in Parquet format.
+    """
 
     logger.info("Getting latest marketing data from S3.")
     path = get_latest_s3_file(BUCKET_NAME, f"{FOLDER}/raw/marketing")
