@@ -18,7 +18,6 @@ def get_current_datetime():
 def get_next_day_utc():
     """
     Returns the next day's date in UTC.
-
     Returns:
         datetime.date: Next day's date in UTC.
     """
