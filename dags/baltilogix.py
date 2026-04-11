@@ -4,10 +4,10 @@ from datetime import timedelta
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
 
-from business_logic.balti_logix.balt import run_compaction
+from business_logic.balti_logix.balt import run_compaction_task
 
 default_args = {
-    "start_date": datetime.datetime(2026, 3, 26),
+    "start_date": datetime.datetime(2026, 3, 18),
     "retries": 2,
     "retry_delay": timedelta(seconds=30)
 }
@@ -24,6 +24,5 @@ with DAG(
 
     compaction = PythonOperator(
         task_id="compact_baltilogix",
-        python_callable=run_compaction,
-        op_args=["2026-03-23"],
+        python_callable=run_compaction_task,
     )

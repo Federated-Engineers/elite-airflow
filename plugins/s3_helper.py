@@ -3,10 +3,14 @@ import logging
 import awswrangler as wr
 import boto3
 
-# from datetime import datetime, timezone
-
-
 logger = logging.getLogger(__name__)
+
+
+def get_s3_client():
+    """
+    Create initializes and return an Amazon S3 client using boto3.
+    """
+    return boto3.client("s3")
 
 
 def get_latest_s3_file(bucket: str, prefix: str):
@@ -28,7 +32,9 @@ def get_latest_s3_file(bucket: str, prefix: str):
     if not files:
         raise ValueError(f"No files found in s3://{bucket}/{prefix}")
 
-    logger.info(f"{len(files)} file(s) found in s3://{bucket}/{prefix}")
+    logger.info(
+        f"{len(files)} file(s) found in s3://{bucket}/{prefix}"
+        )
 
     latest_object = max(files, key=lambda x: x["LastModified"])
 
@@ -68,3 +74,23 @@ def write_df_to_s3(df, bucket_name, folder_name, file_name, dataset=False):
     )
 
     return f"Data successfully written to {s3_path}"
+
+
+def write_partitioned_df(df=None, path=None, dataset=True):
+    """
+    Write a DataFrame to S3 as a partitioned Parquet dataset.
+    Partitions by year, month, and day using overwrite_partitions mode,
+    ensure the DataFrame has no duplicate partitions before writing.
+    """
+    if df is None:
+        raise ValueError("df cannot be None")
+    if path is None:
+        raise ValueError("path cannot be None")
+
+    wr.s3.to_parquet(
+        df=df,
+        path=path,
+        dataset=dataset,
+        partition_cols=["year", "month", "day"],
+        mode="overwrite_partitions"
+    )

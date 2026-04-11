@@ -1,88 +1,72 @@
-import json
 import logging
-from datetime import datetime
 
 import awswrangler as wr
-import boto3
+from airflow.sdk import Variable
 
+from plugins.backfills_helper import get_backfill_dates
+from plugins.date_utils import partitioned_date
+from plugins.s3_helper import get_s3_client, write_partitioned_df
+
+wr.engine.set("python")
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s"
 )
 
-wr.config.use_ray = False
-wr.config.use_threads = True
+
+logging.info(f"Execution Engine: {wr.engine.get()}")
+logging.info(f"Memory Format: {wr.memory_format.get()}")
 
 
-s3 = boto3.client("s3")
+def run_compaction(target_date: str):
+    """
+    Compacts raw JSON files for a given date into partitioned output data
+    and deletes processed raw files.
+    """
 
-
-def run_compaction(target_date):
-    source_bucket = "federated-engineers-staging-elite-data-lake"
-    target_bucket = "federated-engineers-staging-elite-data-lake"
+    s3 = get_s3_client()
+    source_bucket = Variable.get("source_bucket")
+    target_bucket = Variable.get("target_bucket")
 
     source_prefix = f"raw-ingestion/daily-stream/{target_date}/"
     source_path = f"s3://{source_bucket}/{source_prefix}"
+    output_path = f"s3://{target_bucket}/compacted/"
 
-    dt = datetime.strptime(target_date, "%Y-%m-%d")
-    year, month, day = dt.year, dt.month, dt.day
+    logging.info("Checking for files in: %s", source_path)
 
-    logging.info(f"Checking for files in: {source_path}")
     objects = wr.s3.list_objects(source_path)
 
     if not objects:
-        logging.warning("No files found. Skipping compaction.")
-        return {"status": "NO_DATA"}
+        logging.info("No files found for %s. Skipping", target_date)
+        return "No files found. Skipping compaction."
 
-    logging.info(f"Reading JSON files from: {source_path}")
+    logging.info("Reading JSON files from: %s", source_path)
 
-    df = wr.s3.read_json(path=source_path, use_threads=True)
+    df = wr.s3.read_json(path=objects, use_threads=True)
+    df = partitioned_date(target_date, df)
 
     if df.empty:
-        logging.warning("No data found. Nothing to compact.")
-        return {"status": "NO_DATA"}
+        logging.info("No data found after reading files. Nothing to compact")
+        return "No data found. Nothing to compact."
 
+    # Normalize values
     for col in df.columns:
-        if df[col].dtype == "object":
-            df[col] = df[col].apply(
-                lambda x: json.dumps(x) if isinstance(x, (dict, list))
-                else str(x) if x is not None else None
-            )
+        df[col] = df[col].fillna("").astype(str)
 
-    # Add partition columns
-    df["year"] = year
-    df["month"] = month
-    df["day"] = day
+    logging.info("Writing compacted data to: %s", output_path)
+    write_partitioned_df(df, output_path)
 
-    output_path = f"s3://{target_bucket}/compacted/"
-
-    logging.info(f"Writing compacted data to: {output_path}")
-
-    wr.s3.to_parquet(
-        df=df,
-        path=output_path,
-        dataset=True,
-        partition_cols=["year", "month", "day"]
-    )
-
-    logging.info("Compacted data written successfully.")
-
-    #  Delete processed raw files
+    logging.info("data written successfully. Rows written: %d", len(df))
     logging.info("Deleting processed raw files")
 
-    objects = wr.s3.list_objects(source_path)
+    for obj in objects:
+        key = obj.replace(f"s3://{source_bucket}/", "")
+        s3.delete_object(Bucket=source_bucket, Key=key)
 
-    if objects:
-        for obj in objects:
-            key = obj.replace(f"s3://{source_bucket}/", "")
-            s3.delete_object(Bucket=source_bucket, Key=key)
+    logging.info("Deleted %d source files.", len(objects))
 
-        logging.info(f"Deleted {len(objects)} source files.")
-    else:
-        logging.warning("No source files found to delete.")
 
-    return {
-        "status": "SUCCESS",
-        "rows_written": len(df),
-        "partitions": {"year": year, "month": month, "day": day}
-    }
+def run_compaction_task():
+    """ handles backfill and target dates."""
+    for target_date in get_backfill_dates():
+        run_compaction(target_date)
