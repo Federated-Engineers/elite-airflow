@@ -35,7 +35,7 @@ def get_yesterday():
 def partitioned_date(target_date, df=None):
     """
     Add partition columns (year, month, day) to a
-    DataFrame based on a target date.
+    DataFrame based on a target date
 
     Returns:
         pandas.DataFrame: DataFrame with added
