@@ -36,11 +36,11 @@ def get_backfill_dates():
             current += timedelta(days=1)
 
         logging.info(
-            "Running backfill for %d dates: %s to %s", len(target_dates), start, end
+            "Running backfill for %d dates: %s to %s",
+            len(target_dates), start, end
             )
         return target_dates
 
     target_date = get_yesterday()
     logging.info("No backfill set. Running for yesterday: %s", target_date)
     return [target_date]
-    
