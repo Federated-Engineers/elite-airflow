@@ -6,6 +6,7 @@ from airflow.models import Variable
 
 from plugins.date_utils import get_current_datetime
 from plugins.google_sheet import get_data_from_gsheet
+from airflow.exceptions import AirflowSkipException
 
 logger = logging.getLogger(__name__)
 
@@ -24,8 +25,8 @@ def write_sheet_to_s3(sheet_id_variable: str, dataset_name: str):
     df = pd.DataFrame(sheet_data)
 
     if df.empty:
-        logger.info(f"No data found in {dataset_name}. Skipping S3 write.")
-        return
+
+        raise AirflowSkipException(f"No data found for {dataset_name}.")
 
     hg_path = f"s3://{BUCKET_NAME}/{FOLDER_NAME}/raw/{dataset_name}/"
 
@@ -49,11 +50,3 @@ def write_sheet_to_s3(sheet_id_variable: str, dataset_name: str):
     wr.s3.to_parquet(df=df, path=s3_path, dataset=False)
 
     logger.info(f"{dataset_name} data successfully written to S3 at {s3_path}")
-
-
-def write_lancy_to_s3():
-    write_sheet_to_s3("hg_lancy_sheet_id", "lancy")
-
-
-def write_rhone_to_s3():
-    write_sheet_to_s3("hg_rhone_sheet_id", "rhone")
