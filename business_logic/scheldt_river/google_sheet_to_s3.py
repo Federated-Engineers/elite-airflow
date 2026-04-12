@@ -1,12 +1,10 @@
 import logging
 from datetime import datetime, timezone
-from airflow.sdk import get_current_context
 
 import awswrangler as wr
 import pandas as pd
-
+from airflow.sdk import get_current_context
 from plugins.google_sheet import get_data_from_gsheet
-
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +16,8 @@ DATABASE = "scheldt-production-database"
 
 def extract_sheet(sheet_name: str, table_name: str, s3_prefix: str):
     """
-    Extract data from a specific Google Sheet tab and write to S3 bucket and Glue catalog.
+    Extract data from a specific Google Sheet tab
+    and write to S3 bucket and Glue catalog.
 
     Args:
         sheet_name (str): Name of the sheet/tab in the Google Sheet workbook
@@ -28,15 +27,19 @@ def extract_sheet(sheet_name: str, table_name: str, s3_prefix: str):
     Returns:
         None
     """
-    logger.info(f"Starting extraction for {sheet_name}")
+    logger.info("Starting extraction for %s", sheet_name)
     context = get_current_context()
     execution_date = context["ds"]
 
-    data = get_data_from_gsheet(SHEET_ID, SSM_PATH, sheet_name=sheet_name)
+    data = get_data_from_gsheet(
+        SHEET_ID,
+        SSM_PATH,
+        sheet_name=sheet_name,
+    )
     df = pd.DataFrame(data)
 
     if df.empty:
-        logger.warning(f"No data found in {sheet_name}")
+        logger.warning("No data found in %s", sheet_name)
         return
 
     wr.engine.set("python")
@@ -56,7 +59,9 @@ def extract_sheet(sheet_name: str, table_name: str, s3_prefix: str):
     )
 
     logger.info(
-        f"{sheet_name} data successfully written to S3 path: {s3_path} and Glue table: {table_name}")
+        f"{sheet_name} data successfully written to S3 path: {s3_path} "
+        f"and Glue table: {table_name}"
+    )
 
 
 def transform_dim_product():
@@ -72,15 +77,17 @@ def transform_dim_product():
     if df.empty:
         logger.warning("No product data found")
         return
-    #df = df[df["date"] == execution_date]
+
     df["date"] = execution_date
-    dim_product = df[[
-        "product_id",
-        "part_name",
-        "category",
-        "unit_price_euro",
-        "date"
-    ]]
+    dim_product = df[
+        [
+            "product_id",
+            "part_name",
+            "category",
+            "unit_price_euro",
+            "date",
+        ]
+    ]
 
     wr.engine.set("python")
 
@@ -113,11 +120,15 @@ def transform_fact_orders():
     if df_orders.empty:
         logger.warning("No orders data found")
         return
-    
+
     df_orders["date"] = execution_date
     df_payments["date"] = execution_date
 
-    fact_orders = df_orders.merge(df_payments, on=["order_id", "date"], how="left")
+    fact_orders = df_orders.merge(
+        df_payments,
+        on=["order_id", "date"],
+        how="left",
+    )
     fact_orders["date"] = execution_date
 
     wr.engine.set("python")
@@ -133,5 +144,4 @@ def transform_fact_orders():
         table="fact_orders",
         partition_cols=["date"],
     )
-
     logger.info("fact_orders successfully written to curated layer")
