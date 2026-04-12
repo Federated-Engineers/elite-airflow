@@ -3,7 +3,6 @@ from datetime import timedelta
 
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
-
 from business_logic.scardinavas.gsheet_to_s3 import gsheet_to_s3_dataset
 
 default_args = {
