@@ -1,33 +1,28 @@
 import json
+import logging
 
 import awswrangler as wr
 import pandas as pd
-import psycopg2
+from airflow.models import Variable
 
 from plugins.aws import get_ssm_parameter
+from plugins.psycopg2_connection import db_connection
 
-PROJECT_DIR = "LuminaBrick_Properties"
-BUCKET_NAME = "federated-engineers-staging-elite-data-lake"
-SCHEMA_NAME = "historical"
+logging.basicConfig(level=logging.INFO)
+
+config = Variable.get("lumina_bricks_config", deserialize_json=True)
+PROJECT_DIR = config["project_dir"]
+BUCKET_NAME = config["bucket_name"]
+SCHEMA_NAME = config["schema_name"]
+
+
 BUCKET_PATH = f"{BUCKET_NAME}/{PROJECT_DIR}"
-
 
 db_cred = json.loads(get_ssm_parameter('/supabase/database/credentials'))
 
-
-def db_connection():
-    return psycopg2.connect(
-        host=(db_cred["host"]),
-        dbname=(db_cred["database_name"]),
-        user=(db_cred["username"]),
-        password=(db_cred["password"]),
-    )
-
-
 s3_base_path = f"s3://{BUCKET_PATH}"
 
-
-get_tables_to_migrate = [
+TABLES_TO_MIGRATE = [
         "historical_transactions",
         "property_metadata",
         "renovation_ledgers",
@@ -36,53 +31,41 @@ get_tables_to_migrate = [
     ]
 
 
-def read_from_table(connection, schema_name, table_name):
+def migrate_table(
+        connection: str,
+        table_name: str,
+        base_path: str,
+        schema_name: str = "historical",
+        ):
     """
-    Reads data from one table into a Pandas DataFrame.
-
+    Parameters:
+    - schema_name: schema where the table exists
+    - table_name: table to migrate
+    - base_path: S3 destination path
     """
-    query = f'SELECT * FROM "{schema_name}"."{table_name}"'
-    return pd.read_sql_query(query, connection)
+    query = f"SELECT * FROM {schema_name}.{table_name}"
+    file_path = f"{base_path}/{table_name}.parquet"
 
-
-def load_to_s3(df, base_path, table_name):
-    """
-    Writes one table as its own Parquet file in S3.
-
-    """
-    output_path = f"{base_path}/{table_name}.parquet"
-
-    wr.s3.to_parquet(
-        df=df,
-        path=output_path,
-        dataset=False,
-        # boto3_session=boto3.Session(),
-    )
-
-    return output_path
-
-
-def migrate_one_table(schema_name, table_name, base_path):
-    print(f"\nMigrating {schema_name}.{table_name}...")
-
-    connection = db_connection()
     try:
-        df = read_from_table(connection, schema_name, table_name)
+        logging.info(f"reading table: {table_name}...")
+
+        df = pd.read_sql_query(query, connection)
+
+        logging.info(f"Uploading to S3: {file_path}")
+        wr.s3.to_parquet(
+            df=df,
+            path=file_path,
+            dataset=False,
+        )
+    except Exception as e:
+        logging.error(f"Error migrating {table_name}: {e}")
+        raise e
     finally:
         connection.close()
 
-    output_path = load_to_s3(df, base_path, table_name)
 
-    print(f"Done: {output_path}")
-    print(f"Rows exported: {len(df)}")
-
-
-def migrate_all_tables():
-    schema_name = "historical"
-    base_path = s3_base_path
-    tables = get_tables_to_migrate
-
-    for table_name in tables:
-        migrate_one_table(schema_name, table_name, base_path)
-
-    print("\nAll tables exported successfully.")
+migrate_table(
+    connection=db_connection(db_cred),
+    table_name="historical_transactions",
+    base_path=s3_base_path
+)
