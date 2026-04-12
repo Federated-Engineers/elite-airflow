@@ -18,7 +18,7 @@ dag = DAG(
     dag_id='scheldt_rivers_logistics',
     default_args=default_args,
     schedule='0 8 * * *',
-    description='A DAG to  extract data from google ' \
+    description='A DAG to  extract data from google ' 
     'sheets to S3 and Glue Database',
 )
 
