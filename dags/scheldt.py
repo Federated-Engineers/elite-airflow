@@ -3,8 +3,8 @@ from datetime import timedelta
 
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
-
-from business_logic.scheldt_river.google_sheet_to_s3 import extract_sheet,transform_dim_product,transform_fact_orders
+from business_logic.scheldt_river.google_sheet_to_s3 import (
+    extract_sheet, transform_dim_product, transform_fact_orders)
 
 default_args = {
     'start_date': datetime.datetime(2026, 1, 1),
