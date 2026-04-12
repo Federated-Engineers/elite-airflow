@@ -33,7 +33,7 @@ def get_google_sheets_client(ssm_path: str):
     return gspread.authorize(credentials)
 
 
-def get_data_from_gsheet(gsheet_id: str, ssm_path: str,sheet_name: str = None):
+def get_data_from_gsheet(gsheet_id: str, ssm_path: str, sheet_name: str = None):
     """Ingest all records from the first worksheet of a Google Sheet.
 
     Args:

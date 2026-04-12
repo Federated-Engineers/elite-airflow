@@ -18,7 +18,8 @@ dag = DAG(
     dag_id='scheldt_rivers_logistics',
     default_args=default_args,
     schedule='0 8 * * *',
-    description='A DAG to  extract data from google sheets to S3 and Glue Database',
+    description='A DAG to  extract data from google ' \
+    'sheets to S3 and Glue Database',
 )
 
 extract_products = PythonOperator(
@@ -67,4 +68,4 @@ transform_fact_orders = PythonOperator(
 )
 
 extract_products >> transform_dim_product
-[extract_orders,extract_payments] >> transform_fact_orders
+[extract_orders, extract_payments] >> transform_fact_orders
