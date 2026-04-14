@@ -2,7 +2,6 @@ import logging
 
 import awswrangler as wr
 import pandas as pd
-
 from plugins.date_utils import get_current_datetime
 from plugins.google_sheet import get_data_from_gsheet
 from plugins.pandas_helper import (add_ingestion_timestamp,
@@ -31,19 +30,9 @@ def gsheet_to_s3_dataset(
     df["month"] = df[date_column].dt.month
     df["day"] = df[date_column].dt.day
 
+    # wr.engine.set("python")
     path = f"s3://{bucket}/{path_dir}"
     now = get_current_datetime()
-
-    id_column_map = {
-        "orders": "order_id",
-        "shipments": "shipment_id",
-        "payments": "payment_id",
-    }
-
-    id_column = id_column_map.get(table_name)
-
-    if not id_column:
-        raise ValueError(f"No unique ID defined for table {table_name}")
 
     year = df["year"].iloc[0]
     month = df["month"].iloc[0]
@@ -54,20 +43,27 @@ def gsheet_to_s3_dataset(
     try:
         existing_df = wr.s3.read_parquet(path=partition_path)
         logger.info(f"Loaded existing data from {partition_path}")
-
     except Exception:
         existing_df = pd.DataFrame()
         logger.info("No existing data found, treating as first load")
 
-    combined_df = pd.concat([existing_df, df], ignore_index=True)
+    if not existing_df.empty:
+        df_sorted = (
+            df.sort_values(by=df.columns.tolist())
+            .reset_index(drop=True)
+        )
 
-    combined_df = combined_df.drop_duplicates(
-        subset=[id_column],
-        keep="last"
-    )
+        existing_sorted = (
+            existing_df.sort_values(by=existing_df.columns.tolist())
+            .reset_index(drop=True)
+        )
+
+        if df_sorted.equals(existing_sorted):
+            logger.info("No changes detected. Skipping write to S3.")
+            return
 
     write_dataframe_to_s3(
-        df=combined_df,
+        df=df,
         path=path,
         partition_cols=["year", "month", "day"],
         database=database,
@@ -76,4 +72,4 @@ def gsheet_to_s3_dataset(
         mode="overwrite_partitions",
     )
 
-    logger.info("Upsert completed successfully.")
+    logger.info("Data written to S3 using overwrite_partitions.")
