@@ -72,4 +72,4 @@ def gsheet_to_s3_dataset(
         mode="overwrite_partitions",
     )
 
-    logger.info("Data written to S3 using overwrite_partitions.")
+    logger.info("Data written to S3 using overwrite_partitions")

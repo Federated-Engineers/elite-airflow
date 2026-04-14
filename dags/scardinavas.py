@@ -22,7 +22,7 @@ dag = DAG(
     dag_id='scardinavas_dag',
     default_args=default_args,
     schedule='0 8 * * *',
-    description='A DAG to send google sheets data to S3',
+    description='A DAG to send google sheets data to S3.',
 )
 
 tasks = []
