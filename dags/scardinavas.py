@@ -4,6 +4,7 @@ from datetime import timedelta
 from airflow import DAG
 from airflow.models import Variable
 from airflow.providers.standard.operators.python import PythonOperator
+
 from business_logic.scardinavas.gsheet_to_s3 import gsheet_to_s3_dataset
 
 CONFIG = Variable.get("scardinavas_config", deserialize_json=True)
