@@ -4,8 +4,8 @@ from datetime import timedelta
 from airflow import DAG
 from airflow.models import Variable
 from airflow.providers.standard.operators.python import PythonOperator
-
 from business_logic.scardinavas.gsheet_to_s3 import gsheet_to_s3_dataset
+from business_logic.scardinavas.scardinavas_config import DATASETS
 
 CONFIG = Variable.get("scardinavas_config", deserialize_json=True)
 SHEETS = Variable.get("scardinavas_sheets", deserialize_json=True)
@@ -18,28 +18,12 @@ default_args = {
     'catchup': False
 }
 
-
 dag = DAG(
     dag_id='scardinavas_dag',
     default_args=default_args,
     schedule='0 8 * * *',
     description='A DAG to send google sheets data to S3',
 )
-
-DATASETS = {
-    "orders": {
-        "path_dir": "orders_data",
-        "date_column": "order_date",
-    },
-    "shipments": {
-        "path_dir": "shipments_data",
-        "date_column": "shipment_date",
-    },
-    "payments": {
-        "path_dir": "payments_data",
-        "date_column": "payment_date",
-    },
-}
 
 tasks = []
 for name, dataset in DATASETS.items():
