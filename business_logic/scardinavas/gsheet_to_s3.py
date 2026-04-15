@@ -31,7 +31,7 @@ def gsheet_to_s3_dataset(
     df["month"] = df[date_column].dt.month
     df["day"] = df[date_column].dt.day
 
-    # wr.engine.set("python")
+    wr.engine.set("python")
     path = f"s3://{bucket}/{path_dir}"
     now = get_current_datetime()
 
