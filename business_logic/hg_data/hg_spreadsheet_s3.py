@@ -9,7 +9,6 @@ from airflow.models import Variable
 from plugins.date_utils import get_current_datetime
 from plugins.google_sheet import get_data_from_gsheet
 
-
 logger = logging.getLogger(__name__)
 
 config = Variable.get("hg_config", deserialize_json=True)
