@@ -33,7 +33,7 @@ def get_yesterday():
     return yesterday.strftime("%Y-%m-%d")
 
 
-def partitioned_date(target_date, df=None):
+def get_partitioned_date(target_date, df):
     """
     Add partition columns (year, month, day) to a
     DataFrame based on a target date
