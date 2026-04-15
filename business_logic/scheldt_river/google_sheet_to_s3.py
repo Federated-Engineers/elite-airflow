@@ -3,16 +3,18 @@ from datetime import datetime, timezone
 
 import awswrangler as wr
 import pandas as pd
-from airflow.sdk import get_current_context
-
+from airflow.sdk import Variable
+from plugins.date_utils import get_current_datetime
 from plugins.google_sheet import get_data_from_gsheet
 
 logger = logging.getLogger(__name__)
+config = Variable.get("S3_CONFIG", deserialize_json=True)
 
-SHEET_ID = "1Q5ojWBFb2_5FsJ9VuFqr7PH1NmstbelctUP_azFRLXg"
-SSM_PATH = "/production/google-service-account/credentials"
-RAW_BUCKET = "federated-engineers-production-elite-scheldt"
-DATABASE = "scheldt-production-database"
+
+SHEET_ID = config["sheet_id"]
+SSM_PATH = config["ssm_path"]
+RAW_BUCKET = config["raw_bucket"]
+DATABASE = config["database"]
 
 
 def extract_sheet(sheet_name: str, table_name: str, s3_prefix: str):
@@ -28,9 +30,8 @@ def extract_sheet(sheet_name: str, table_name: str, s3_prefix: str):
     Returns:
         None
     """
-    logger.info("Starting extraction for %s", sheet_name)
-    context = get_current_context()
-    execution_date = context["ds"]
+    logger.info(f"Starting extraction for {sheet_name}")
+    execution_date = get_current_datetime().split("_")[0]
 
     data = get_data_from_gsheet(
         SHEET_ID,
@@ -40,15 +41,11 @@ def extract_sheet(sheet_name: str, table_name: str, s3_prefix: str):
     df = pd.DataFrame(data)
 
     if df.empty:
-        logger.warning("No data found in %s", sheet_name)
-        return
-
-    wr.engine.set("python")
-    df["ingestion_timestamp"] = datetime.now(timezone.utc)
+        logger.warning(f"No data found in {sheet_name}")
+        return df
+    df["ingestion_timestamp"] = pd.to_datetime(datetime.now(timezone.utc))
     df["date"] = execution_date
-
     s3_path = f"s3://{RAW_BUCKET}/{s3_prefix}/"
-
     wr.s3.to_parquet(
         df=df,
         path=s3_path,
@@ -57,6 +54,7 @@ def extract_sheet(sheet_name: str, table_name: str, s3_prefix: str):
         table=table_name,
         database=DATABASE,
         partition_cols=["date"],
+        dtype={"ingestion_timestamp": "timestamp"}
     )
 
     logger.info(
@@ -69,15 +67,14 @@ def transform_dim_product():
     """
     Function to transform products into a dimension table.
     """
-    logger.info("Starting transform for dim_product")
-    context = get_current_context()
-    execution_date = context["ds"]
+    logger.info("Starting transformation for dim_product")
+    execution_date = get_current_datetime().split("_")[0]
 
     df = wr.s3.read_parquet(f"s3://{RAW_BUCKET}/raw/products/")
 
     if df.empty:
         logger.warning("No product data found")
-        return
+        return df
 
     df["date"] = execution_date
     dim_product = df[
@@ -89,11 +86,7 @@ def transform_dim_product():
             "date",
         ]
     ]
-
-    wr.engine.set("python")
-
     path = f"s3://{RAW_BUCKET}/curated/dim/products/"
-
     wr.s3.to_parquet(
         df=dim_product,
         path=path,
@@ -112,30 +105,24 @@ def transform_fact_orders():
     Function to merge and transform orders and payments into a fact table.
     """
     logger.info("Starting extraction for transform fact")
-    context = get_current_context()
-    execution_date = pd.to_datetime(context["ds"]).date()
-
+    execution_date = get_current_datetime().split("_")[0]
     df_orders = wr.s3.read_parquet(f"s3://{RAW_BUCKET}/raw/orders/")
     df_payments = wr.s3.read_parquet(f"s3://{RAW_BUCKET}/raw/payments/")
 
     if df_orders.empty:
         logger.warning("No orders data found")
-        return
+        return df_orders
 
     df_orders["date"] = execution_date
     df_payments["date"] = execution_date
 
     fact_orders = df_orders.merge(
         df_payments,
-        on=["order_id", "date"],
+        on=["order_id"],
         how="left",
     )
     fact_orders["date"] = execution_date
-
-    wr.engine.set("python")
-
     path = f"s3://{RAW_BUCKET}/curated/fact/orders/"
-
     wr.s3.to_parquet(
         df=fact_orders,
         path=path,
