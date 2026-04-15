@@ -3,16 +3,17 @@ import logging
 import awswrangler as wr
 from airflow.sdk import Variable
 
-from plugins.process_dates import run_dt
-from plugins.date_utils import get_partitioned_date
 from plugins.aws import get_s3_client
+from plugins.date_utils import get_partitioned_date
 from plugins.pandas_helper import write_partitioned_df
+from plugins.process_dates import run_dt
 
 wr.engine.set("python")
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s"
 )
+
 
 def run_compaction(target_date: str):
     """

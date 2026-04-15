@@ -1,5 +1,6 @@
 import boto3
 
+
 def get_s3_client():
     """
     Create initializes and return an Amazon S3 client using boto3.
