@@ -2,6 +2,7 @@ import logging
 
 import awswrangler as wr
 import boto3
+import pandas as pd
 
 logger = logging.getLogger(__name__)
 
@@ -67,3 +68,53 @@ def write_df_to_s3(df, bucket_name, folder_name, file_name, dataset=False):
     )
 
     return f"Data successfully written to {s3_path}"
+
+
+def write_dataframe_to_s3(
+    df: pd.DataFrame,
+    path: str,
+    partition_cols: list[str],
+    filename_prefix: str,
+    database: str | None = None,
+    table: str | None = None,
+    mode: str = "append",
+) -> None:
+    """
+    Writes a pandas DataFrame to Amazon S3 in Parquet format and optionally
+    registers/updates it in the AWS Glue Data Catalog.
+
+    Args:
+        df (pd.DataFrame):The DataFrame to be written to S3.
+        path (str):The full S3 path where the dataset will be stored.
+            Example: "s3://my-bucket/my-folder/"
+        partition_cols (list[str]): List of column names to partition by
+            Example: ["year", "month", "day"]
+        filename_prefix (str):Prefix added to each output file name.
+            Example: "2026-04-10_12:00:00_"
+        database (str | None, optional): AWS Glue database name.
+            If provided, the dataset will be registered in the Glue Catalog.
+            If None, data will only be written to S3.
+        table (str | None, optional): AWS Glue table name.
+            Must be provided if `database` is specified.
+        mode (str, optional): Write mode for the dataset:
+                - "append": Adds new data to existing dataset
+                - "overwrite_partitions": Replaces only affected partitions
+                - "overwrite": Replaces entire dataset
+            Default is "append".
+    Returns:
+        None
+    """
+    logger.info(f"Writing DataFrame to S3 at {path} with mode={mode}")
+
+    wr.s3.to_parquet(
+        df=df,
+        path=path,
+        dataset=True,
+        mode=mode,
+        partition_cols=partition_cols,
+        database=database,
+        table=table,
+        filename_prefix=filename_prefix,
+    )
+
+    logger.info("Write to S3 completed successfully.")
