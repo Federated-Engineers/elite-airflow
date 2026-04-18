@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO)
 
 def db_connection(db_cred: dict):
     """
-    Creates a PostgreSQL database connection.
+    Create a PostgreSQL database connection.
 
     Args:
         db_cred (dict): Dictionary containing database credentials:

@@ -16,7 +16,7 @@ db_cred = json.loads(get_ssm_parameter('/supabase/database/credentials'))
 
 s3_base_path = f"s3://{BUCKET_PATH}"
 
-MIGRATE_TABLES = [
+TABLES_TO_MIGRATE = [
         "historical_transactions",
         "property_metadata",
         "renovation_ledgers",
