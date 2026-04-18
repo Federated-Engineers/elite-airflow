@@ -3,7 +3,11 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
 
-from business_logic.hg_data.hg_spreadsheet_s3 import write_sheet_to_s3
+from business_logic.hg_data.hg_spreadsheet_s3 import (
+    write_sheet_to_s3,
+    LANCY_SHEET_ID,
+    RHONE_SHEET_ID
+)
 
 default_args = {
     "owner": "federatedengineers",
@@ -27,7 +31,7 @@ write_lancy_s3 = PythonOperator(
     task_id="write_lancy_s3",
     python_callable=write_sheet_to_s3,
     op_kwargs={
-        "sheet_id_variable": "hg_lancy_sheet_id",
+        "sheet_id": LANCY_SHEET_ID,
         "dataset_name": "lancy",
         "table_name": "raw_lancy",
     },
@@ -39,7 +43,7 @@ write_rhone_s3 = PythonOperator(
     task_id="write_rhone_s3",
     python_callable=write_sheet_to_s3,
     op_kwargs={
-        "sheet_id_variable": "hg_rhone_sheet_id",
+        "sheet_id": RHONE_SHEET_ID,
         "dataset_name": "rhone",
         "table_name": "raw_rhone",
     },
@@ -47,4 +51,4 @@ write_rhone_s3 = PythonOperator(
 )
 
 
-write_lancy_s3 >> write_rhone_s3
+[write_lancy_s3, write_rhone_s3]
