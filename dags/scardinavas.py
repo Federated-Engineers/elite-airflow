@@ -5,8 +5,8 @@ from airflow import DAG
 from airflow.models import Variable
 from airflow.providers.standard.operators.python import PythonOperator
 
+from business_logic.scardinavas.config import DATASETS
 from business_logic.scardinavas.gsheet_to_s3 import gsheet_to_s3_dataset
-from business_logic.scardinavas.scardinavas_config import DATASETS
 
 CONFIG = Variable.get("scardinavas_config", deserialize_json=True)
 SHEETS = Variable.get("scardinavas_sheets", deserialize_json=True)
