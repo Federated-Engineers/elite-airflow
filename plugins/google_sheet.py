@@ -33,7 +33,8 @@ def get_google_sheets_client(ssm_path: str):
     return gspread.authorize(credentials)
 
 
-def get_data_from_gsheet(gsheet_id: str, ssm_path: str):
+def get_data_from_gsheet(gsheet_id: str, ssm_path: str,
+                         sheet_name: str = None):
     """Ingest all records from the first worksheet of a Google Sheet.
 
     Args:
@@ -48,7 +49,11 @@ def get_data_from_gsheet(gsheet_id: str, ssm_path: str):
 
     gc = get_google_sheets_client(ssm_path)
     workbook = gc.open_by_key(gsheet_id)
-    worksheet = workbook.sheet1
+
+    if sheet_name:
+        worksheet = workbook.worksheet(sheet_name)
+    else:
+        worksheet = workbook.sheet1
 
     data = worksheet.get_all_records()
     logger.info("Data ingestion completed")
