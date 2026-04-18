@@ -68,7 +68,8 @@ def write_sheet_to_s3(
     if existing_df.empty:
         pass
     elif df.sort_values(df.columns.tolist()).reset_index(drop=True).equals(
-        existing_df.sort_values(existing_df.columns.tolist()).reset_index(drop=True)
+        existing_df.sort_values(
+            existing_df.columns.tolist()).reset_index(drop=True)
     ):
         return {
             "status": "no_changes",
