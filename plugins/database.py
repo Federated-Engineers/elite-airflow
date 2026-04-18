@@ -32,6 +32,7 @@ def db_connection(db_cred: dict):
         password=db_cred["password"],
     )
 
+
 def load_postgres_table_to_s3(
         connection: str,
         table_name: str,
@@ -39,11 +40,14 @@ def load_postgres_table_to_s3(
         schema_name: str,
         ):
     """
-    Parameters:
-    - schema_name: schema where the table exists
-    - table_name: table to migrate
-    - base_path: S3 destination path
-    """
+This function reads a table from PostgreSQL and
+uploads it to AWS S3 in Parquet format.
+Parameters:
+- schema_name: schema where the table exists
+- table_name: table to migrate
+- base_path: S3 destination path
+- connection: psycopg2 connection object
+ """
     query = f"SELECT * FROM {schema_name}.{table_name}"
     file_path = f"{base_path}/{table_name}.parquet"
 
