@@ -17,7 +17,7 @@ default_args = {
     'depends_on_past': False,
     'start_date': datetime.datetime(2026, 3, 5),
     'retries': 3,
-    'retry_delay': datetime.timedelta(seconds=5),
+    'retry_delay': datetime.timedelta(seconds=6),
     'execution_timeout': datetime.timedelta(minutes=10)
 }
 

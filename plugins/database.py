@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO)
 
 def db_connection(db_cred: dict):
     """
-    Create a PostgreSQL database connection.
+    Creates a PostgreSQL database connection.
 
     Args:
         db_cred (dict): Dictionary containing database credentials:
@@ -41,7 +41,7 @@ def load_postgres_table_to_s3(
         ):
     """
 This function reads a table from PostgreSQL and
-uploads it to AWS S3 in Parquet format.
+uploads it to a S3 destination in Parquet format.
 Parameters:
 - schema_name: schema where the table exists
 - table_name: table to migrate
