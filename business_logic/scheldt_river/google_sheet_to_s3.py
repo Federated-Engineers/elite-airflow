@@ -17,6 +17,7 @@ SSM_PATH = config["ssm_path"]
 RAW_BUCKET = config["raw_bucket"]
 DATABASE = config["database"]
 
+wr.engine.set("python")
 
 def extract_sheet(sheet_name: str, table_name: str, s3_prefix: str):
     """
