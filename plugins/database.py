@@ -32,6 +32,7 @@ def db_connection(db_cred: dict):
         password=db_cred["password"],
     )
 
+
 def load_postgres_table_to_s3(
         connection: str,
         table_name: str,
@@ -39,6 +40,8 @@ def load_postgres_table_to_s3(
         schema_name: str,
         ):
     """
+    This function reads a table from a PostgreSQL database
+    and uploads it to S3 in Parquet format.
     Parameters:
     - schema_name: schema where the table exists
     - table_name: table to migrate
