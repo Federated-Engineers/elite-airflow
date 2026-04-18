@@ -3,11 +3,9 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
 
-from business_logic.hg_data.hg_spreadsheet_s3 import (
-    write_sheet_to_s3,
-    LANCY_SHEET_ID,
-    RHONE_SHEET_ID
-)
+from business_logic.hg_data.hg_spreadsheet_s3 import (LANCY_SHEET_ID,
+                                                      RHONE_SHEET_ID,
+                                                      write_sheet_to_s3)
 
 default_args = {
     "owner": "federatedengineers",
