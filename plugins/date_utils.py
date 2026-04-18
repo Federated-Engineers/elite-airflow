@@ -1,6 +1,8 @@
 import logging
 from datetime import datetime, timedelta, timezone
 
+import pandas as pd
+
 
 def get_current_datetime():
     """
@@ -22,3 +24,28 @@ def get_next_day_utc():
         datetime.date: Next day's date in UTC.
     """
     return datetime.now(timezone.utc).date() + timedelta(days=1)
+
+
+def get_yesterday():
+    """Returns yesterday's date as a string"""
+    yesterday = datetime.now(timezone.utc).date() - timedelta(days=1)
+    return yesterday.strftime("%Y-%m-%d")
+
+
+def get_partitioned_date(target_date, df):
+    """
+    Add partition columns (year, month, day) to a
+    DataFrame based on a target date
+
+    Returns:
+        pandas.DataFrame: DataFrame with added
+        `year`, `month`, and `day` columns.
+    """
+    dt = datetime.strptime(target_date, "%Y-%m-%d")
+    year, month, day = dt.year, dt.month, dt.day
+    if df is None:
+        df = pd.DataFrame()
+    df["year"] = year
+    df["month"] = month
+    df["day"] = day
+    return df
