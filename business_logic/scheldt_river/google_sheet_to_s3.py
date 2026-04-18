@@ -19,6 +19,7 @@ DATABASE = config["database"]
 
 wr.engine.set("python")
 
+
 def extract_sheet(sheet_name: str, table_name: str, s3_prefix: str):
     """
     Extract data from a specific Google Sheet tab
