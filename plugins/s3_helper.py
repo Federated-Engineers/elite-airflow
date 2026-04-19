@@ -70,7 +70,7 @@ def write_df_to_s3(df, bucket_name, folder_name, file_name, dataset=False):
     return f"Data successfully written to {s3_path}"
 
 
-def write_dataframe_to_s3(
+def write_dataframe_to_s3_glue(
     df: pd.DataFrame,
     path: str,
     partition_cols: list[str],

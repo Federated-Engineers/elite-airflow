@@ -5,9 +5,8 @@ import pandas as pd
 
 from plugins.date_utils import get_current_datetime
 from plugins.google_sheet import get_data_from_gsheet
-from plugins.pandas_helper import (add_ingestion_timestamp,
-                                   convert_columns_to_datetime)
-from plugins.s3_helper import write_dataframe_to_s3
+from plugins.pandas_helper import convert_columns_to_datetime
+from plugins.s3_helper import write_dataframe_to_s3_glue
 
 logger = logging.getLogger(__name__)
 
@@ -21,56 +20,110 @@ def gsheet_to_s3_dataset(
     table_name: str,
     date_column: str,
 ):
+
     data = get_data_from_gsheet(gsheet_id, ssm_path)
     df = pd.DataFrame(data)
 
+    logger.info(f"Fetched data from Google Sheets | rows={len(df)}")
+
     df = convert_columns_to_datetime(df, [date_column])
-    df = add_ingestion_timestamp(df)
 
     df["year"] = df[date_column].dt.year
     df["month"] = df[date_column].dt.month
     df["day"] = df[date_column].dt.day
 
     wr.engine.set("python")
+
     path = f"s3://{bucket}/{path_dir}"
     now = get_current_datetime()
 
-    year = df["year"].iloc[0]
-    month = df["month"].iloc[0]
-    day = df["day"].iloc[0]
+    partitions = df[["year", "month", "day"]].drop_duplicates()
 
-    partition_path = f"{path}/year={year}/month={month}/day={day}/"
+    logger.info(f"Total partitions to process: {len(partitions)}")
 
-    try:
-        existing_df = wr.s3.read_parquet(path=partition_path)
-        logger.info(f"Loaded existing data from {partition_path}")
-    except Exception:
-        existing_df = pd.DataFrame()
-        logger.info("No existing data found, treating as first load")
+    for _, row in partitions.iterrows():
+        year, month, day = row["year"], row["month"], row["day"]
 
-    if not existing_df.empty:
-        df_sorted = (
-            df.sort_values(by=df.columns.tolist())
-            .reset_index(drop=True)
+        logger.info(
+            f"Processing partition: year={year}, "
+            f"month={month}, day={day}"
         )
 
-        existing_sorted = (
-            existing_df.sort_values(by=existing_df.columns.tolist())
-            .reset_index(drop=True)
+        partition_path = f"{path}/year={year}/month={month}/day={day}/"
+
+        df_partition = df[
+            (df["year"] == year) &
+            (df["month"] == month) &
+            (df["day"] == day)
+        ]
+
+        logger.info(
+            f"Partition rows (new): {len(df_partition)}"
         )
 
-        if df_sorted.equals(existing_sorted):
-            logger.info("No changes detected. Skipping write to S3.")
-            return
+        try:
+            existing_df = wr.s3.read_parquet(path=partition_path)
+            logger.info(f"Existing partition rows: {len(existing_df)}")
+        except Exception as e:
+            logger.warning(
+                f"No existing data for partition: {str(e)}"
+            )
+            existing_df = pd.DataFrame()
 
-    write_dataframe_to_s3(
-        df=df,
-        path=path,
-        partition_cols=["year", "month", "day"],
-        database=database,
-        table=table_name,
-        filename_prefix=f"{now}_",
-        mode="overwrite_partitions",
-    )
+        if not existing_df.empty:
+            common_cols = sorted(
+                set(df_partition.columns)
+                & set(existing_df.columns)
+            )
 
-    logger.info("Data written to S3 using overwrite_partitions")
+            df_aligned = df_partition[common_cols]
+            existing_aligned = existing_df[common_cols]
+
+            df_sorted = (
+                df_aligned
+                .sort_values(by=common_cols)
+                .reset_index(drop=True)
+            )
+            existing_sorted = (
+                existing_aligned
+                .sort_values(by=common_cols)
+                .reset_index(drop=True)
+            )
+
+            try:
+                pd.testing.assert_frame_equal(
+                    df_sorted,
+                    existing_sorted,
+                    check_dtype=False,
+                    check_like=True
+                )
+
+                logger.info(
+                    f"No changes detected → Skipping partition "
+                    f"year={year}/month={month}/day={day}"
+                )
+                continue
+
+            except AssertionError:
+                logger.warning(
+                    f"Data mismatch → Overwriting partition "
+                    f"year={year}/month={month}/day={day}"
+                )
+
+        else:
+            logger.info("First load for this partition → writing data")
+
+        write_dataframe_to_s3_glue(
+            df=df_partition,
+            path=path,
+            partition_cols=["year", "month", "day"],
+            database=database,
+            table=table_name,
+            filename_prefix=f"{now}_",
+            mode="overwrite_partitions",
+        )
+
+        logger.info(
+            f"Partition written | rows={len(df_partition)} | "
+            f"year={year}/month={month}/day={day}"
+        )
