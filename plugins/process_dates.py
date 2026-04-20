@@ -18,7 +18,9 @@ def run_dt():
     Raises:
         ValueError: If date range is invalid or end date is not in the past.
     """
-    backfill = Variable.get("backfill_dates", deserialize_json=True)
+    backfill = Variable.get(
+        "backfill_dates", deserialize_json=True, default=None
+        )
 
     if backfill:
         start = datetime.strptime(backfill["start"], "%Y-%m-%d").date()
