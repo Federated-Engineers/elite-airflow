@@ -4,7 +4,7 @@ import json
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
 
-from business_logic.lumina import s3_base_path
+from business_logic.lumina_config import s3_base_path
 from plugins.aws import get_ssm_parameter
 from plugins.database import db_connection, load_postgres_table_to_s3
 
