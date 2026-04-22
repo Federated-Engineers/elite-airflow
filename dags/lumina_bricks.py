@@ -27,7 +27,7 @@ dag = DAG(
     default_args=default_args,
     max_active_runs=1,
     catchup=False,
-    tags=[DAG_ID]
+    tags=[DAG_ID, "postgres", "s3", "supabase"],
 )
 
 migrate_historical_transactions = PythonOperator(
