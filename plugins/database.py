@@ -38,6 +38,7 @@ def load_postgres_table_to_s3(
         table_name: str,
         base_path: str,
         schema_name: str,
+        dataset=False,
         ):
     """
     This function reads a table from a PostgreSQL database
@@ -59,7 +60,6 @@ def load_postgres_table_to_s3(
         wr.s3.to_parquet(
             df=df,
             path=file_path,
-            dataset=False,
         )
     except Exception as e:
         logging.error(f"Error migrating {table_name}: {e}")
