@@ -11,7 +11,7 @@ BUCKET_NAME = "federated-engineers-staging-elite-data-lake"
 FOLDER = "liffey_luxury"
 
 
-def transform_and_upload():
+def transform_and_push_to_s3():
     """Read the latest marketing and orders data from S3,
     joins them using customer_id, and writes the transformed
     data back to S3 (transformed folder) in Parquet format.
