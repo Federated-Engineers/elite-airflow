@@ -16,20 +16,20 @@ DATABASE_URL = Variable.get("database_url")
 
 
 default_args = {
-    "owner": "lll",
+    "owner": "liffey_luxury",
     "start_date": datetime(2026, 1, 1),
     "retries": 2,
     "retry_delay": timedelta(minutes=5),
 }
 
 with DAG(
-    dag_id="lll_transformation",
+    dag_id="liffey_luxury_transformation",
     default_args=default_args,
     schedule="0 8 * * *",
     description="Extract data from Postgres and Google Sheets, \
     transform it, and write back to S3 for Liffey Luxury Lounge Client",
     catchup=False,
-    tags=["lll", "s3", "google_sheets", "postgres"],
+    tags=["liffey_luxury", "s3", "google_sheets", "postgres"],
 ) as dag:
 
     extract_from_gsheet_and_push_to_S3 = PythonOperator(
