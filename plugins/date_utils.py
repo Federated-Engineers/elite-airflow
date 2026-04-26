@@ -13,7 +13,7 @@ def get_current_datetime():
         string_datetime
     """
     logging.info("Getting the current date and time of ingestion")
-    current_datetime = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+    current_datetime = datetime.now().strftime("%d-%m-%Y_%H:%M:%S")
     return current_datetime
 
 

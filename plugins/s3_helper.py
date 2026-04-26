@@ -45,7 +45,8 @@ def get_latest_s3_file(bucket: str, prefix: str):
     return latest_file_path
 
 
-def write_df_to_s3(df, bucket_name, folder_name, file_name, dataset=False):
+def write_df_to_s3(df, bucket_name, folder_name, file_name,
+                   dataset=False, database=None, table=None):
     """
     Write a pandas DataFrame to S3 as a Parquet file.
 
@@ -55,6 +56,8 @@ def write_df_to_s3(df, bucket_name, folder_name, file_name, dataset=False):
         folder_name (str): Folder/prefix in S3.
         file_name (str): Name of the file (including .parquet).
         dataset (bool): Whether to write as a partitioned dataset.
+        database (str | None): Glue/Athena catalog: Database name.
+        table (str | None): Glue/Athena catalog: Table name.
 
     Returns:
         str: Full S3 path of the uploaded file.
@@ -73,8 +76,8 @@ def write_df_to_s3(df, bucket_name, folder_name, file_name, dataset=False):
 def write_dataframe_to_s3_glue(
     df: pd.DataFrame,
     path: str,
-    partition_cols: list[str],
     filename_prefix: str,
+    partition_cols: list[str] = None,
     database: str | None = None,
     table: str | None = None,
     mode: str = "append",
