@@ -2,17 +2,12 @@ import logging
 from datetime import datetime, timedelta
 
 from airflow import DAG
-from airflow.models import Variable
 from airflow.providers.standard.operators.python import PythonOperator
-
 from business_logic.liffey_luxury.datasources_to_s3_extract import (
     gsheet_to_s3, postgres_to_s3)
-from business_logic.liffey_luxury.transform import transform_and_upload
+from business_logic.liffey_luxury.transform import transform_and_push_to_s3
 
 logger = logging.getLogger(__name__)
-
-GSHEET_ID = Variable.get("gsheet_id")
-DATABASE_URL = Variable.get("database_url")
 
 
 default_args = {
@@ -35,22 +30,16 @@ with DAG(
     extract_from_gsheet_and_push_to_S3 = PythonOperator(
         task_id="extract_from_gsheet_and_push_to_S3",
         python_callable=gsheet_to_s3,
-        op_kwargs={
-            "gsheet_id": GSHEET_ID,
-        },
     )
 
     extract_from_postgres_and_push_to_S3 = PythonOperator(
         task_id="extract_from_postgres_and_push_to_S3",
-        python_callable=postgres_to_s3,
-        op_kwargs={
-            "url": DATABASE_URL,
-        },
+        python_callable=postgres_to_s3
     )
 
     extract_transform_and_push_to_S3 = PythonOperator(
         task_id="extract_transform_and_push_to_S3",
-        python_callable=transform_and_upload,
+        python_callable=transform_and_push_to_s3
     )
 
 [extract_from_gsheet_and_push_to_S3,
