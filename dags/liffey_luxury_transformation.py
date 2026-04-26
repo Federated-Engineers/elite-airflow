@@ -6,7 +6,7 @@ from airflow.providers.standard.operators.python import PythonOperator
 
 from business_logic.liffey_luxury.datasources_to_s3_extract import (
     gsheet_to_s3,
-    postgres_to_s3
+    postgres_to_s3,
 )
 from business_logic.liffey_luxury.transform import transform_and_push_to_s3
 
