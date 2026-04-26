@@ -67,9 +67,7 @@ def write_df_to_s3(df, bucket_name, folder_name, file_name,
     wr.s3.to_parquet(
         df=df,
         path=s3_path,
-        dataset=dataset,
-        database=database,
-        table=table,
+        dataset=dataset
     )
 
     return f"Data successfully written to {s3_path}"
@@ -78,8 +76,8 @@ def write_df_to_s3(df, bucket_name, folder_name, file_name,
 def write_dataframe_to_s3_glue(
     df: pd.DataFrame,
     path: str,
-    partition_cols: list[str],
     filename_prefix: str,
+    partition_cols: list[str] = None,
     database: str | None = None,
     table: str | None = None,
     mode: str = "append",
