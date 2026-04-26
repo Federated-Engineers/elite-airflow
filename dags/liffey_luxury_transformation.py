@@ -37,12 +37,12 @@ with DAG(
 
     extract_from_postgres_and_push_to_S3 = PythonOperator(
         task_id="extract_from_postgres_and_push_to_S3",
-        python_callable=postgres_to_s3
+        python_callable=postgres_to_s3,
     )
 
     extract_transform_and_push_to_S3 = PythonOperator(
         task_id="extract_transform_and_push_to_S3",
-        python_callable=transform_and_push_to_s3
+        python_callable=transform_and_push_to_s3,
     )
 
 [extract_from_gsheet_and_push_to_S3,
