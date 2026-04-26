@@ -3,9 +3,10 @@ import logging
 import awswrangler as wr
 import pandas as pd
 from airflow.models import Variable
+from sqlalchemy import create_engine
+
 from plugins.date_utils import get_current_datetime
 from plugins.google_sheet import get_data_from_gsheet
-from sqlalchemy import create_engine
 
 logger = logging.getLogger(__name__)
 

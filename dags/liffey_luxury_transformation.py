@@ -3,8 +3,11 @@ from datetime import datetime, timedelta
 
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
+
 from business_logic.liffey_luxury.datasources_to_s3_extract import (
-    gsheet_to_s3, postgres_to_s3)
+    gsheet_to_s3,
+    postgres_to_s3
+)
 from business_logic.liffey_luxury.transform import transform_and_push_to_s3
 
 logger = logging.getLogger(__name__)
