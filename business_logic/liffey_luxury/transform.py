@@ -20,19 +20,20 @@ def get_variable():
     return config
 
 
-def transform_and_push_to_s3():
+def read_join_and_push_to_s3():
     """Read the latest marketing and orders data from S3,
     joins them using customer_id, and writes the transformed
     data back to S3 (transformed folder) in Parquet format.
     """
 
-    logger.info("Getting latest marketing data from S3.")
+    
 
     config = get_variable()
     bucket = config["s3"]["bucket_name"]
     marketing_rel_path = config["s3"]["marketing_rpath"]
     orders_rel_path = config["s3"]["orders_rpath"]
 
+    logger.info("Getting latest marketing data from S3.")
     marketing_path = get_latest_s3_file(bucket, marketing_rel_path)
     df_marketing = wr.s3.read_parquet(marketing_path)
 
@@ -41,7 +42,7 @@ def transform_and_push_to_s3():
     orders_path = get_latest_s3_file(bucket, orders_rel_path)
     df_orders = wr.s3.read_parquet(orders_path)
 
-    logger.info("Transforming data.")
+    logger.info("Joining marketing and orders data.")
     df_transformed = df_orders.merge(df_marketing, on="customer_id",
                                      how="left")
 

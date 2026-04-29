@@ -11,25 +11,12 @@ from plugins.google_sheet import get_data_from_gsheet
 logger = logging.getLogger(__name__)
 
 
-def get_variable():
-    """Get all necessary variables from Airflow Variables"""
-
-    config = Variable.get("liffey_luxury_config", deserialize_json=True)
-    if not config:
-        logger.error("Liffey_luxury_config is missing.")
-        raise ValueError("Configuration variables are missing")
-
-    secrets = Variable.get("liffey_luxury_secrets", deserialize_json=True)
-    if not secrets:
-        logger.error("Liffey_luxury_secrets is missing.")
-        raise ValueError("Secrets variables are missing")
-
-    return config, secrets
-
-
 current_time = get_current_datetime()
 
-config, secrets = get_variable()
+config = Variable.get("liffey_luxury_config", deserialize_json=True)
+sensitive_config = Variable.get("liffey_luxury_sensitive_config",
+                                deserialize_json=True)
+
 bucket_name = config["s3"]["bucket_name"]
 folder_name = config["s3"]["base_folder"]
 
@@ -43,15 +30,16 @@ def gsheet_to_s3():
     """
 
     gsheet_id = config["google_sheet"]["sheet_id"]
-    ssm_path = secrets["google_ssm_path"]
+    ssm_path = sensitive_config["google_ssm_path"]
 
+    logger.info(f"Connecting to Google Sheet with ID: {gsheet_id}")
+    
     data = get_data_from_gsheet(gsheet_id, ssm_path)
-    logger.info(f"Data extracted from Google Sheet with ID: {gsheet_id}")
+    logger.info(f"Data extracted from Google Sheet")
 
     df_marketing = pd.DataFrame(data)
 
     if df_marketing.empty:
-        logger.warning("No data found in the Google Sheet.")
         raise ValueError("No data to write to S3.")
 
     file_name = f"{current_time}_marketing_crm.parquet"
@@ -76,12 +64,8 @@ def postgres_to_s3():
     """
 
     logger.info("Starting PostgreSQL to S3 extraction.")
-    url = secrets["database_url"]
+    url = sensitive_config["database_url"]
     query = config["postgres"]["orders_query"]
-
-    if not url:
-        logger.error("Database connection URL is not set.")
-        raise ValueError("Database connection URL is missing")
 
     logger.info("Connecting to PostgreSQL database.")
     engine = create_engine(url)
@@ -90,7 +74,6 @@ def postgres_to_s3():
     logger.info(f"Data extracted from PostgreSQL: {df_orders.shape[0]} rows")
 
     if df_orders.empty:
-        logger.warning("No data found in the PostgreSQL query.")
         raise ValueError("No data to write to S3.")
 
     file_name = f"{current_time}_orders.parquet"

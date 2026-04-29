@@ -6,7 +6,7 @@ from airflow.providers.standard.operators.python import PythonOperator
 
 from business_logic.liffey_luxury.datasources_to_s3_extract import (
     gsheet_to_s3, postgres_to_s3)
-from business_logic.liffey_luxury.transform import transform_and_push_to_s3
+from business_logic.liffey_luxury.transform import read_join_and_push_to_s3, transform_and_push_to_s3
 
 logger = logging.getLogger(__name__)
 
@@ -38,11 +38,11 @@ with DAG(
         python_callable=postgres_to_s3,
     )
 
-    extract_transform_and_push_to_S3 = PythonOperator(
-        task_id="extract_transform_and_push_to_S3",
-        python_callable=transform_and_push_to_s3,
+    read_join_and_push_to_S3 = PythonOperator(
+        task_id="read_join_and_push_to_S3",
+        python_callable=read_join_and_push_to_s3,
     )
 
 [extract_from_gsheet_and_push_to_S3,
  extract_from_postgres_and_push_to_S3,
- ] >> extract_transform_and_push_to_S3
+ ] >> read_join_and_push_to_S3
