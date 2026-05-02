@@ -1,58 +1,60 @@
 import logging
 
 import awswrangler as wr
-from airflow.models import Variable
+import pandas as pd
+from airflow.sdk import Variable
 
 from plugins.date_utils import get_current_datetime
-from plugins.s3_helper import get_latest_s3_file, write_dataframe_to_s3_glue
+from plugins.s3_helper import (read_latest_data_from_s3,
+                               write_dataframe_to_s3_glue)
 
 logger = logging.getLogger(__name__)
 
-
-def get_variable():
-    """Get all necessary variables from Airflow Variables"""
-
-    config = Variable.get("liffey_luxury_config", deserialize_json=True)
-    if not config:
-        logger.error("Liffey_luxury_config is missing.")
-        raise ValueError("Configuration variables are missing")
-
-    return config
+config = Variable.get("liffey_luxury_config", deserialize_json=True)
+bucket = config["s3"]["bucket_name"]
 
 
-def read_join_and_push_to_s3():
-    """Read the latest marketing and orders data from S3,
-    joins them using customer_id, and writes the transformed
-    data back to S3 (transformed folder) in Parquet format.
-    """
+def read_and_join_data():
+    marketing_path = config["s3"]["marketing_path"]
+    orders_path = config["s3"]["orders_path"]
 
-    
+    logger.info("Reading latest marketing data in S3.")
+    marketing_data = read_latest_data_from_s3(bucket, marketing_path)
 
-    config = get_variable()
-    bucket = config["s3"]["bucket_name"]
-    marketing_rel_path = config["s3"]["marketing_rpath"]
-    orders_rel_path = config["s3"]["orders_rpath"]
-
-    logger.info("Getting latest marketing data from S3.")
-    marketing_path = get_latest_s3_file(bucket, marketing_rel_path)
-    df_marketing = wr.s3.read_parquet(marketing_path)
-
-    logger.info("Getting latest orders data from S3.")
-
-    orders_path = get_latest_s3_file(bucket, orders_rel_path)
-    df_orders = wr.s3.read_parquet(orders_path)
+    logger.info("Reading latest orders data in S3.")
+    orders_data = read_latest_data_from_s3(bucket, orders_path)
 
     logger.info("Joining marketing and orders data.")
-    df_transformed = df_orders.merge(df_marketing, on="customer_id",
-                                     how="left")
+    df_transformed = orders_data.merge(marketing_data, on="customer_id",
+                                        how="left")
+    
+    return df_transformed
 
-    logger.info("Writing transformed data to S3.")
 
+def check_and_write_data_to_s3():
+    logger.info("Reading latest transformed data in S3.")
+
+    current_transformed_path = config["s3"]["transformed_path"]
+    current_transformed_data = read_latest_data_from_s3(
+        bucket,
+        current_transformed_path
+    )
+    
+    incoming_transformed_data = read_and_join_data()
+    if incoming_transformed_data.equals(current_transformed_data):
+        logger.info("No new data to write to S3.")
+        return
+    
     file_name = f"{get_current_datetime()}_transformed.parquet"
-    write_dataframe_to_s3_glue(df=df_transformed,
-                               path=config["s3"]["transformed_path"],
-                               database=config["glue"]["database"],
-                               table=config["glue"]["table"],
-                               filename_prefix=file_name)
+    logger.info("Changes detected. Writing transformed data to S3.")
+
+    incoming_transformed_path = (f"s3://{config['s3']['bucket_name']}"
+                                 f"/{config['s3']['transformed_path']}/")
+
+    write_dataframe_to_s3_glue(df=incoming_transformed_data,
+                                path=incoming_transformed_path,
+                                database=config["glue"]["database"],
+                                table=config["glue"]["table"],
+                                filename_prefix=file_name)
 
     logger.info("Data transformation and upload complete.")
