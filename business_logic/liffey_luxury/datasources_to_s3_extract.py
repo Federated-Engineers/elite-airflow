@@ -6,11 +6,9 @@ import pandas as pd
 from airflow.sdk import Variable
 
 from plugins.aws import get_ssm_parameter
-from plugins.date_utils import get_current_datetime
 from plugins.database import db_connection, load_db_query_results_to_s3
-
+from plugins.date_utils import get_current_datetime
 from plugins.google_sheet import get_data_from_gsheet
-
 
 logger = logging.getLogger(__name__)
 
