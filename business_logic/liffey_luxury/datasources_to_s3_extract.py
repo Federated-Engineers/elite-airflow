@@ -6,9 +6,11 @@ import pandas as pd
 from airflow.sdk import Variable
 
 from plugins.aws import get_ssm_parameter
-from plugins.database import db_connection, load_db_query_results_to_s3
 from plugins.date_utils import get_current_datetime
+from plugins.database import db_connection, load_db_query_results_to_s3
+
 from plugins.google_sheet import get_data_from_gsheet
+
 
 logger = logging.getLogger(__name__)
 
@@ -34,9 +36,9 @@ def gsheet_to_s3():
     google_ssm_path = sensitive_config["google_ssm_path"]
 
     logger.info(f"Connecting to Google Sheet with ID: {gsheet_id}")
-    
+
     data = get_data_from_gsheet(gsheet_id, google_ssm_path)
-    logger.info(f"Data extracted from Google Sheet")
+    logger.info("Data extracted from Google Sheet")
 
     df_marketing = pd.DataFrame(data)
 
@@ -55,9 +57,11 @@ def gsheet_to_s3():
 
 sql_query = "SELECT * FROM historical.liffey_luxury_order_transactions;"
 
+
 def postgres_to_s3(query=sql_query):
     """Extract orders data from a PostgreSQL database and write to S3
-    in Parquet format.
+    in Parquet format. All others variables needed for this function
+    are retrieved from Airflow Variables.
 
     Args:
         query: The SQL query to execute against the PostgreSQL
@@ -70,20 +74,19 @@ def postgres_to_s3(query=sql_query):
 
     con = db_connection(db_cred)
     logger.info("Database connection established.")
-    
+
     query = sql_query
     file_name = f"{current_time}_orders"
     orders_folder = config["s3"]["orders_folder"]
     orders_s3_path = (f"s3://{base_folder}/"
                       f"{orders_folder}")
-    
+
     logger.info("Extracting data from PostgreSQL and writing to S3.")
     load_db_query_results_to_s3(
         connection=con,
         query=query,
         base_path=orders_s3_path,
-        file_name=file_name,
-    )
-    
+        file_name=file_name)
+
     logger.info(f"Data written to S3: {orders_s3_path}")
     con.close()

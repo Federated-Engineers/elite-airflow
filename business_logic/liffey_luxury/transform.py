@@ -1,7 +1,5 @@
 import logging
 
-import awswrangler as wr
-import pandas as pd
 from airflow.sdk import Variable
 
 from plugins.date_utils import get_current_datetime
@@ -15,6 +13,11 @@ bucket = config["s3"]["bucket_name"]
 
 
 def read_and_join_data():
+    """Reads the latest marketing and orders data from S3, performs
+    a left join on customer_id, and returns the transformed
+    DataFrame.
+    """
+
     marketing_path = config["s3"]["marketing_path"]
     orders_path = config["s3"]["orders_path"]
 
@@ -26,12 +29,17 @@ def read_and_join_data():
 
     logger.info("Joining marketing and orders data.")
     df_transformed = orders_data.merge(marketing_data, on="customer_id",
-                                        how="left")
-    
+                                       how="left")
+
     return df_transformed
 
 
 def check_and_write_data_to_s3():
+    """Checks if the transformed data has changed compared to the current
+    version in S3. If there are changes, it writes the new transformed
+    data to S3. Otherwise it skips the write operation.
+    """
+
     logger.info("Reading latest transformed data in S3.")
 
     current_transformed_path = config["s3"]["transformed_path"]
@@ -39,12 +47,12 @@ def check_and_write_data_to_s3():
         bucket,
         current_transformed_path
     )
-    
+
     incoming_transformed_data = read_and_join_data()
     if incoming_transformed_data.equals(current_transformed_data):
         logger.info("No new data to write to S3.")
         return
-    
+
     file_name = f"{get_current_datetime()}_transformed.parquet"
     logger.info("Changes detected. Writing transformed data to S3.")
 
@@ -52,9 +60,9 @@ def check_and_write_data_to_s3():
                                  f"/{config['s3']['transformed_path']}/")
 
     write_dataframe_to_s3_glue(df=incoming_transformed_data,
-                                path=incoming_transformed_path,
-                                database=config["glue"]["database"],
-                                table=config["glue"]["table"],
-                                filename_prefix=file_name)
+                               path=incoming_transformed_path,
+                               database=config["glue"]["database"],
+                               table=config["glue"]["table"],
+                               filename_prefix=file_name)
 
     logger.info("Data transformation and upload complete.")

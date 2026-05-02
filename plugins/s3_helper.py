@@ -38,7 +38,8 @@ def get_latest_s3_file(bucket: str, prefix: str):
 
 
 def read_latest_data_from_s3(bucket: str, prefix: str):
-    """Reads the latest file in an S3 bucket and returns it as a pandas DataFrame.
+    """Reads the latest file in an S3 bucket and returns it as a
+    pandas DataFrame.
 
     Args:
         bucket (str): S3 bucket name.
@@ -54,7 +55,7 @@ def read_latest_data_from_s3(bucket: str, prefix: str):
 
     if df.empty:
         raise ValueError(f"No data found in the latest file: {full_path}")
-    
+
     logger.info(f"Getting latest data from {full_path}.")
 
     return df

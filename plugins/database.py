@@ -82,11 +82,11 @@ def load_db_query_results_to_s3(
     - base_path: S3 destination path
     - file_name: name of the output Parquet file (without extension)
     """
-    
+
     file_path = f"{base_path}/{file_name}.parquet"
 
     try:
-        logging.info(f"Executing query")
+        logging.info("Executing query")
         df = pd.read_sql_query(query, connection)
 
         if df.empty:
@@ -97,7 +97,7 @@ def load_db_query_results_to_s3(
             df=df,
             path=file_path,
             dataset=dataset)
-        
+
     except Exception:
-        logging.error(f"Error executing query and loading to S3")
+        logging.error("Error executing query and loading to S3")
         raise
