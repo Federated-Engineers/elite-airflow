@@ -65,3 +65,39 @@ def load_postgres_table_to_s3(
         logging.error(f"Error migrating {table_name}: {e}")
     finally:
         connection.close()
+
+
+def load_db_query_results_to_s3(
+        connection: str,
+        query: str,
+        base_path: str,
+        file_name: str,
+        dataset=False,
+        ):
+    """
+    This function executes a SQL query against a PostgreSQL database
+    and uploads the results to S3 in Parquet format.
+    Parameters:
+    - query: SQL query to execute
+    - base_path: S3 destination path
+    - file_name: name of the output Parquet file (without extension)
+    """
+
+    file_path = f"{base_path}/{file_name}.parquet"
+
+    try:
+        logging.info("Executing query")
+        df = pd.read_sql_query(query, connection)
+
+        if df.empty:
+            raise ValueError("No data to write to S3.")
+
+        logging.info(f"Loading query results to S3: {file_path}")
+        wr.s3.to_parquet(
+            df=df,
+            path=file_path,
+            dataset=dataset)
+
+    except Exception:
+        logging.error("Error executing query and loading to S3")
+        raise

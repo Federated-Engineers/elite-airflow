@@ -32,17 +32,33 @@ def get_latest_s3_file(bucket: str, prefix: str):
 
     latest_object = max(files, key=lambda x: x["LastModified"])
 
-    # last_modified = latest_object["LastModified"]
-    # today = datetime.now(timezone.utc)
-    # date_difference = (today.date() - last_modified.date()).days
-
-    # if date_difference > last_date:
-    #     logger.info("No new file to process today.")
-    #     return None
-
     latest_file_path = f"s3://{bucket}/{latest_object['Key']}"
     logger.info(f"Latest file: {latest_file_path}")
     return latest_file_path
+
+
+def read_latest_data_from_s3(bucket: str, prefix: str):
+    """Reads the latest file in an S3 bucket and returns it as a
+    pandas DataFrame.
+
+    Args:
+        bucket (str): S3 bucket name.
+        prefix (str): Prefix/Folder name to search in.
+
+    Returns:
+        pd.DataFrame: The DataFrame containing the data from the latest file.
+    """
+
+    logger.info("Getting path to the latest file.")
+    full_path = get_latest_s3_file(bucket, prefix)
+    df = wr.s3.read_parquet(full_path)
+
+    if df.empty:
+        raise ValueError(f"No data found in the latest file: {full_path}")
+
+    logger.info(f"Getting latest data from {full_path}.")
+
+    return df
 
 
 def write_df_to_s3(df, bucket_name, folder_name, file_name, dataset=False):
@@ -73,8 +89,8 @@ def write_df_to_s3(df, bucket_name, folder_name, file_name, dataset=False):
 def write_dataframe_to_s3_glue(
     df: pd.DataFrame,
     path: str,
-    partition_cols: list[str],
     filename_prefix: str,
+    partition_cols: list[str] = None,
     database: str | None = None,
     table: str | None = None,
     mode: str = "append",
