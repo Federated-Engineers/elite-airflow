@@ -85,19 +85,41 @@ def load_db_query_results_to_s3(
 
     file_path = f"{base_path}/{file_name}.parquet"
 
-    try:
-        logging.info("Executing query")
-        df = pd.read_sql_query(query, connection)
+    logging.info("Executing query")
+    df = pd.read_sql_query(query, connection)
 
-        if df.empty:
-            raise ValueError("No data to write to S3.")
+    if df.empty:
+        raise ValueError("No data to write to S3.")
 
-        logging.info(f"Loading query results to S3: {file_path}")
-        wr.s3.to_parquet(
-            df=df,
-            path=file_path,
-            dataset=dataset)
+    logging.info(f"Loading query results to S3: {file_path}")
+    wr.s3.to_parquet(
+        df=df,
+        path=file_path,
+        dataset=dataset)
 
-    except Exception:
-        logging.error("Error executing query and loading to S3")
-        raise
+    logging.info("Data successfully written to S3.")
+
+
+def db_query_results_to_df(
+        connection: str,
+        query: str,
+        ):
+    """
+    This function executes a SQL query against a PostgreSQL database
+    and returns the results as a pandas DataFrame.
+    Parameters:
+    - query: SQL query to execute
+    - base_path: S3 destination path
+
+    Returns:
+    - df: pandas DataFrame containing the query results
+    """
+
+    logging.info("Executing query")
+    df = pd.read_sql_query(query, connection)
+
+    if df.empty:
+        raise ValueError("No data to write to S3.")
+    
+    logging.info("Query executed successfully.")
+    return df

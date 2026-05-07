@@ -6,9 +6,10 @@ import pandas as pd
 from airflow.sdk import Variable
 
 from plugins.aws import get_ssm_parameter
-from plugins.database import db_connection, load_db_query_results_to_s3
+from plugins.database import db_connection, db_query_results_to_df
 from plugins.date_utils import get_current_datetime
 from plugins.google_sheet import get_data_from_gsheet
+from plugins.s3_helper import read_latest_data_from_s3
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +19,7 @@ config = Variable.get("liffey_luxury_config", deserialize_json=True)
 sensitive_config = Variable.get("liffey_luxury_sensitive_config",
                                 deserialize_json=True)
 
+bucket = config["s3"]["bucket_name"]
 base_folder = config["s3"]["base_folder"]
 
 
@@ -38,19 +40,24 @@ def gsheet_to_s3():
     data = get_data_from_gsheet(gsheet_id, google_ssm_path)
     logger.info("Data extracted from Google Sheet")
 
-    df_marketing = pd.DataFrame(data)
+    incoming_marketing_df = pd.DataFrame(data)
+    current_marketing_df = read_latest_data_from_s3(bucket=bucket,
+                            prefix=config["s3"]["marketing_path"])
 
-    if df_marketing.empty:
-        raise ValueError("No data to write to S3.")
+    try:
+        pd.testing.assert_frame_equal(incoming_marketing_df, 
+                                      current_marketing_df, check_dtype=False)
+        logger.info("No new marketing data to write to S3.")
+    
+    except AssertionError:
+        file_name = f"{current_time}_marketing_crm.parquet"
+        marketing_folder = config["s3"]["marketing_folder"]
+        marketing_s3_path = (f"s3://{base_folder}/"
+                            f"{marketing_folder}/{file_name}")
 
-    file_name = f"{current_time}_marketing_crm.parquet"
-    marketing_folder = config["s3"]["marketing_folder"]
-    marketing_s3_path = (f"s3://{base_folder}/"
-                         f"{marketing_folder}/{file_name}")
+        wr.s3.to_parquet(incoming_marketing_df, marketing_s3_path)
 
-    wr.s3.to_parquet(df_marketing, marketing_s3_path)
-
-    logger.info(f"Data written to S3: {marketing_s3_path}")
+        logger.info(f"Data written to S3: {marketing_s3_path}")
 
 
 sql_query = "SELECT * FROM historical.liffey_luxury_order_transactions;"
@@ -74,17 +81,24 @@ def postgres_to_s3(query=sql_query):
     logger.info("Database connection established.")
 
     query = sql_query
-    file_name = f"{current_time}_orders"
-    orders_folder = config["s3"]["orders_folder"]
-    orders_s3_path = (f"s3://{base_folder}/"
-                      f"{orders_folder}")
+    incoming_orders_df = db_query_results_to_df(connection=con, query=query)
+    current_orders_df = read_latest_data_from_s3(bucket=bucket,
+                            prefix=config["s3"]["orders_path"])
+    
+    try:
+        pd.testing.assert_frame_equal(incoming_orders_df,
+                                      current_orders_df, check_dtype=False)
+        logger.info("No new orders data to write to S3.")
 
-    logger.info("Extracting data from PostgreSQL and writing to S3.")
-    load_db_query_results_to_s3(
-        connection=con,
-        query=query,
-        base_path=orders_s3_path,
-        file_name=file_name)
+    except AssertionError:
+        file_name = f"{current_time}_orders"
+        orders_folder = config["s3"]["orders_folder"]
+        orders_s3_path = (f"s3://{base_folder}/"
+                            f"{orders_folder}/{file_name}")
 
-    logger.info(f"Data written to S3: {orders_s3_path}")
+        logger.info("Extracting data from PostgreSQL and writing to S3.")
+        wr.s3.to_parquet(incoming_orders_df, orders_s3_path)
+
+        logger.info(f"Data written to S3: {orders_s3_path}")
+    
     con.close()
