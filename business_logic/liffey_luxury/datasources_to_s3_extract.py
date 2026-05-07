@@ -41,19 +41,20 @@ def gsheet_to_s3():
     logger.info("Data extracted from Google Sheet")
 
     incoming_marketing_df = pd.DataFrame(data)
-    current_marketing_df = read_latest_data_from_s3(bucket=bucket,
-                            prefix=config["s3"]["marketing_path"])
+    current_marketing_df = read_latest_data_from_s3(
+        bucket=bucket, prefix=config["s3"]["marketing_path"])
 
     try:
-        pd.testing.assert_frame_equal(incoming_marketing_df, 
-                                      current_marketing_df, check_dtype=False)
+        pd.testing.assert_frame_equal(incoming_marketing_df,
+                                      current_marketing_df,
+                                      check_dtype=False)
         logger.info("No new marketing data to write to S3.")
-    
+
     except AssertionError:
         file_name = f"{current_time}_marketing_crm.parquet"
         marketing_folder = config["s3"]["marketing_folder"]
         marketing_s3_path = (f"s3://{base_folder}/"
-                            f"{marketing_folder}/{file_name}")
+                             f"{marketing_folder}/{file_name}")
 
         wr.s3.to_parquet(incoming_marketing_df, marketing_s3_path)
 
@@ -82,9 +83,9 @@ def postgres_to_s3(query=sql_query):
 
     query = sql_query
     incoming_orders_df = db_query_results_to_df(connection=con, query=query)
-    current_orders_df = read_latest_data_from_s3(bucket=bucket,
-                            prefix=config["s3"]["orders_path"])
-    
+    current_orders_df = read_latest_data_from_s3(
+        bucket=bucket, prefix=config["s3"]["orders_path"])
+
     try:
         pd.testing.assert_frame_equal(incoming_orders_df,
                                       current_orders_df, check_dtype=False)
@@ -94,11 +95,11 @@ def postgres_to_s3(query=sql_query):
         file_name = f"{current_time}_orders"
         orders_folder = config["s3"]["orders_folder"]
         orders_s3_path = (f"s3://{base_folder}/"
-                            f"{orders_folder}/{file_name}")
+                          f"{orders_folder}/{file_name}")
 
         logger.info("Extracting data from PostgreSQL and writing to S3.")
         wr.s3.to_parquet(incoming_orders_df, orders_s3_path)
 
         logger.info(f"Data written to S3: {orders_s3_path}")
-    
+
     con.close()

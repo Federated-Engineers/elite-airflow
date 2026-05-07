@@ -28,9 +28,9 @@ def read_and_join_data():
     orders_data = read_latest_data_from_s3(bucket, orders_path)
 
     logger.info("Joining marketing and orders data.")
-    
-    df_joined = orders_data.merge(marketing_data, on="customer_id",
-                                       how="left")
+
+    df_joined = orders_data.merge(
+        marketing_data, on="customer_id", how="left")
 
     return df_joined
 
@@ -58,12 +58,12 @@ def check_and_write_data_to_s3():
         logger.info("Changes detected. Writing joined data to S3.")
 
         incoming_joined_path = (f"s3://{config['s3']['bucket_name']}"
-                                    f"/{config['s3']['joined_path']}/")
+                                f"/{config['s3']['joined_path']}/")
 
         write_dataframe_to_s3_glue(df=incoming_joined_data,
-                                path=incoming_joined_path,
-                                database=config["glue"]["database"],
-                                table=config["glue"]["table"],
-                                filename_prefix=file_name)
+                                   path=incoming_joined_path,
+                                   database=config["glue"]["database"],
+                                   table=config["glue"]["table"],
+                                   filename_prefix=file_name)
 
         logger.info("Data join and upload complete.")

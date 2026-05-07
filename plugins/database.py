@@ -120,6 +120,6 @@ def db_query_results_to_df(
 
     if df.empty:
         raise ValueError("No data to write to S3.")
-    
+
     logging.info("Query executed successfully.")
     return df
