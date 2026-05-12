@@ -3,6 +3,7 @@ import logging
 
 import pandas as pd
 import psycopg2
+
 from plugins.aws import get_ssm_parameter
 from plugins.date_utils import get_current_datetime
 from plugins.pandas_helper import add_ingestion_timestamp
