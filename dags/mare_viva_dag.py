@@ -3,11 +3,8 @@ from datetime import timedelta
 
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
-
 from business_logic.mare_viva.mare_viva_to_s3_glue import (
-    extract_harvest_to_s3_to_glue,
-    extract_lagoon_to_s3_to_glue,
-)
+    extract_harvest_to_s3_to_glue, extract_lagoon_to_s3_to_glue)
 
 default_args = {
     'start_date': datetime.datetime(2026, 1, 1),
