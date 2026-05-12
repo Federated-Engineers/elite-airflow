@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "elite-airflow"
+version = "0.0.1"
+description = "Elite Airflow repository package for local development"
+requires-python = ">=3.10"
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["plugins", "plugins.*"]
