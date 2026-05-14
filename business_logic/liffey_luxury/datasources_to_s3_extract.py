@@ -7,13 +7,10 @@ from airflow.sdk import Variable
 
 from plugins.aws import get_ssm_parameter
 from plugins.database import db_connection, db_query_results_to_df
-from plugins.date_utils import get_current_datetime
 from plugins.google_sheet import get_data_from_gsheet
 from plugins.s3_helper import read_latest_data_from_s3
 
 logger = logging.getLogger(__name__)
-
-current_time = get_current_datetime()
 
 config = Variable.get("liffey_luxury_config", deserialize_json=True)
 sensitive_config = Variable.get("liffey_luxury_sensitive_config",
@@ -51,20 +48,17 @@ def gsheet_to_s3():
         logger.info("No new marketing data to write to S3.")
 
     except AssertionError:
-        file_name = f"{current_time}_marketing_crm.parquet"
         marketing_folder = config["s3"]["marketing_folder"]
-        marketing_s3_path = (f"s3://{base_folder}/"
-                             f"{marketing_folder}/{file_name}")
+        marketing_s3_path = (f"s3://{base_folder}/{marketing_folder}/"
+                             f"marketing_crm.parquet")
 
-        wr.s3.to_parquet(incoming_marketing_df, marketing_s3_path)
+        wr.s3.to_parquet(df=incoming_marketing_df,
+                         path=marketing_s3_path)
 
         logger.info(f"Data written to S3: {marketing_s3_path}")
 
 
-sql_query = "SELECT * FROM historical.liffey_luxury_order_transactions;"
-
-
-def postgres_to_s3(query=sql_query):
+def postgres_to_s3():
     """Extract orders data from a PostgreSQL database and write to S3
     in Parquet format. All others variables needed for this function
     are retrieved from Airflow Variables.
@@ -81,8 +75,10 @@ def postgres_to_s3(query=sql_query):
     con = db_connection(db_cred)
     logger.info("Database connection established.")
 
-    query = sql_query
-    incoming_orders_df = db_query_results_to_df(connection=con, query=query)
+    query = "SELECT * FROM historical.liffey_luxury_order_transactions;"
+    incoming_orders_df = db_query_results_to_df(connection=con,
+                                                query=query)
+
     current_orders_df = read_latest_data_from_s3(
         bucket=bucket, prefix=config["s3"]["orders_path"])
 
@@ -92,13 +88,15 @@ def postgres_to_s3(query=sql_query):
         logger.info("No new orders data to write to S3.")
 
     except AssertionError:
-        file_name = f"{current_time}_orders"
         orders_folder = config["s3"]["orders_folder"]
         orders_s3_path = (f"s3://{base_folder}/"
-                          f"{orders_folder}/{file_name}")
+                          f"{orders_folder}/orders.parquet")
 
         logger.info("Extracting data from PostgreSQL and writing to S3.")
-        wr.s3.to_parquet(incoming_orders_df, orders_s3_path)
+        wr.s3.to_parquet(df=incoming_orders_df,
+                         path=orders_s3_path,
+                         dataset=True,
+                         mode="overwrite")
 
         logger.info(f"Data written to S3: {orders_s3_path}")
 

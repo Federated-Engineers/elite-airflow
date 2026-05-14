@@ -2,7 +2,6 @@ import logging
 
 from airflow.sdk import Variable
 
-from plugins.date_utils import get_current_datetime
 from plugins.s3_helper import (read_latest_data_from_s3,
                                write_dataframe_to_s3_glue)
 
@@ -54,7 +53,7 @@ def check_and_write_data_to_s3():
         logger.info("No new data to write to S3.")
 
     else:
-        file_name = f"{get_current_datetime()}_joined.parquet"
+        file_name = "joined.parquet"
         logger.info("Changes detected. Writing joined data to S3.")
 
         incoming_joined_path = (f"s3://{config['s3']['bucket_name']}"
@@ -64,6 +63,7 @@ def check_and_write_data_to_s3():
                                    path=incoming_joined_path,
                                    database=config["glue"]["database"],
                                    table=config["glue"]["table"],
-                                   filename_prefix=file_name)
+                                   filename_prefix=file_name,
+                                   mode="overwrite")
 
         logger.info("Data join and upload complete.")
