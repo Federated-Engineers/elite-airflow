@@ -3,7 +3,6 @@ import logging
 
 import pandas as pd
 import psycopg2
-
 from plugins.aws import get_ssm_parameter
 from plugins.date_utils import get_current_datetime
 from plugins.pandas_helper import add_ingestion_timestamp
@@ -97,7 +96,7 @@ def extract_harvest_to_s3_to_glue():
         harvest_full_path(),
         ["year", "month", "day"],
         path_variable()["filename"],
-        "federated-engineers-elite-staging-db",
+        "elite-mare-viva",
         "harvest_lifecycle_record",
         "append",
     )
@@ -110,7 +109,7 @@ def extract_lagoon_to_s3_to_glue():
         lagoon_full_path(),
         ["year", "month", "day"],
         path_variable()["filename"],
-        "federated-engineers-elite-staging-db",
+        "elite-mare-viva",
         "lagoon_environmental_log",
         "append",
     )
