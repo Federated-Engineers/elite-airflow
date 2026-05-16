@@ -3,6 +3,7 @@ import logging
 
 import pandas as pd
 import psycopg2
+from airflow.models import Variable
 
 from plugins.aws import get_ssm_parameter
 from plugins.date_utils import get_current_datetime
@@ -11,15 +12,20 @@ from plugins.s3_helper import write_dataframe_to_s3_glue
 
 logger = logging.getLogger(__name__)
 
+my_config = {
+    "bucket_name": "federated-engineers-production-elite-mare-viva-bucket",
+    "folder_name_harvest": "harvest_lifecycle_record",
+    "folder_name_lagoon": "lagoon_environmental_log",
+    "ssm_credentials_link": "/supabase/database/credentials",
+}
 
-def path_variable() -> dict:
+def hive_partition_vars() -> dict:
     """
-    A function that returns the variables for the S3 path and file naming.
+    A function that generates Hive partition variables based on the current date and time.
     Args:
         None
     Returns:
-        dict: Contains the S3 bucket name, folder names, SSM credentials path,
-              filename prefix, and Hive partition string.
+        dict: A dictionary containing the filename and ingestion Hive partition path.
     """
     current_datetime = get_current_datetime()
     year, month, day = current_datetime.split("_")[0].split("-")
@@ -28,10 +34,6 @@ def path_variable() -> dict:
     ingestion_hive_partition = f"year={year}/month={month}/day={day}"
 
     path_vars = {
-        "bucket_name": "federated-engineers-production-elite-mare-viva-bucket",
-        "folder_name_harvest": "harvest_lifecycle_record",
-        "folder_name_lagoon": "lagoon_environmental_log",
-        "ssm_credentials_link": "/supabase/database/credentials",
         "filename": filename,
         "ingestion_hive_partition": ingestion_hive_partition,
     }
