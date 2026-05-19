@@ -118,3 +118,16 @@ def write_dataframe_to_s3_glue(
     )
 
     logger.info("Write to S3 completed successfully.")
+
+
+def s3_full_path(bucket_name: str, folder_name: str) -> str:
+    """
+    A function that constructs the full S3 path for the dataframe.
+    Args:
+        bucket_name (str): The S3 bucket name.
+        folder_name (str): The folder name in S3.
+    Returns:
+        str: The full S3 path for the dataframe.
+    """
+    return f"s3://{bucket_name}/{folder_name}"
+
