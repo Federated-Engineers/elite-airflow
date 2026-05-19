@@ -11,7 +11,7 @@ from plugins.pandas_helper import add_ingestion_timestamp, table_partition_cols
 logger = logging.getLogger(__name__)
 
 
-my_config = {
+config = {
     "bucket_name": "federated-engineers-staging-elite-data-lake",
     "folder_name_harvest": "harvest_lifecycle_record",
     "folder_name_lagoon": "lagoon_environmental_log",
@@ -21,7 +21,7 @@ my_config = {
 }
 
 
-config = Variable.get("my_config", deserialize_json=True)
+config = Variable.get("config", deserialize_json=True)
 db_cred = json.loads(get_ssm_parameter(config["ssm_credentials_link"]))
 connection = postgres_db_connection(db_cred)
 
