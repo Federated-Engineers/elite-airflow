@@ -5,7 +5,7 @@ from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
 
 from business_logic.mare_viva.mare_viva_to_s3_glue import (
-    config, harvest_date_partitioned, lagoon_date_partitioned)
+    get_config, load_data_to_s3_glue)
 from plugins.date_utils import get_current_datetime
 from plugins.s3_helper import s3_full_path, write_dataframe_to_s3_glue
 
@@ -23,38 +23,40 @@ dag = DAG(
     description='A DAG to send mare viva data from Supabase to S3',
 )
 
-write_harvest_s3_glue = PythonOperator(
+
+harvest_operator = PythonOperator(
     dag=dag,
     python_callable=write_dataframe_to_s3_glue,
-    task_id='write_harvest_s3_glue',
     op_kwargs={
-        'df': harvest_date_partitioned,
+        'df': load_data_to_s3_glue()["harvest_date_partitioned_df"],
         'path': s3_full_path(
-            config['bucket_name'], config['folder_name_harvest']
+            get_config()['bucket_name'], get_config()['folder_name_harvest']
         ),
         'partition_cols': ['year', 'month', 'day'],
         'filename_prefix': get_current_datetime(),
-        'database': config['staging_glue_db'],
+        'database': get_config()['staging_glue_db'],
         'table': 'harvest_lifecycle_record',
         'mode': 'append',
     },
+    task_id='harvest_s3_glue_task',
 )
 
-write_lagoon_s3_glue = PythonOperator(
+
+lagoon_operator = PythonOperator(
     dag=dag,
     python_callable=write_dataframe_to_s3_glue,
-    task_id='write_lagoon_s3_glue',
     op_kwargs={
-        'df': lagoon_date_partitioned,
+        'df': load_data_to_s3_glue()["lagoon_date_partitioned_df"],
         'path': s3_full_path(
-            config['bucket_name'], config['folder_name_lagoon']
+            get_config()['bucket_name'], get_config()['folder_name_lagoon']
         ),
         'partition_cols': ['year', 'month', 'day'],
         'filename_prefix': get_current_datetime(),
-        'database': config['staging_glue_db'],
+        'database': get_config()['staging_glue_db'],
         'table': 'lagoon_environmental_log',
         'mode': 'append',
     },
+    task_id='lagoon_s3_glue_task',
 )
 
-[write_harvest_s3_glue, write_lagoon_s3_glue]
+[harvest_operator, lagoon_operator]
