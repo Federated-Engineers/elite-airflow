@@ -130,4 +130,3 @@ def s3_full_path(bucket_name: str, folder_name: str) -> str:
         str: The full S3 path for the dataframe.
     """
     return f"s3://{bucket_name}/{folder_name}"
-

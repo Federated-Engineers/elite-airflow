@@ -63,9 +63,9 @@ def table_partition_cols(df: pd.DataFrame):
     """
     A function that adds partition columns for a given DataFrame.
     Args:
-        df (pd.DataFrame): Input DataFrame with an 'ingestion_timestamp' column.
-        The add_ingestion_timestamp function should be called on the df to create the 
-        'ingestion_timestamp' column before this function to ensure it exists.
+        df (pd.DataFrame): Input DataFrame with an 'ingestion_timestamp'
+            column. Call add_ingestion_timestamp on the df first to
+            ensure the column exists.
     Returns:
         pd.DataFrame: The DataFrame with partition columns added.
     """

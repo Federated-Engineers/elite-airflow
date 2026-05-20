@@ -33,27 +33,22 @@ def postgres_db_connection(db_cred: dict):
     return connection
 
 
-def postgres_query_output_to_df(schema: str, table_name: str,   connection):
+def postgres_query_output_to_df(schema: str, table_name: str, connection):
     """
-    A function that extracts data from a specified table
-    in the postgres database. It uses the provided database credentials to establish a connection.
+    Extract data from a specified table in the PostgreSQL database.
+
     Args:
         schema (str): The schema name.
         table_name (str): The table name.
-        connection: For the connection parameter, pass the psycopg2 connection 
-        object returned by the postgres_db_connection function.
-        That is, you should first call postgres_db_connection with 
-        the appropriate database credentials to get the connection object, 
-        and then pass that object
-        
+        connection: psycopg2 connection object returned by
+            postgres_db_connection.
+
     Returns:
         pd.DataFrame: The extracted data as a pandas DataFrame.
     """
     query = f"SELECT * FROM {schema}.{table_name};"
     df = pd.read_sql(query, connection)
     return df
-
-
 
 
 def load_postgres_table_to_s3(
