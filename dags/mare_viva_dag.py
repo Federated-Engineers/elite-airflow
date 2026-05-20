@@ -16,6 +16,38 @@ default_args = {
 }
 
 
+def write_harvest_to_s3():
+    config = get_config()
+    data = load_data_to_s3_glue()
+    write_dataframe_to_s3_glue(
+        df=data["harvest_date_partitioned_df"],
+        path=s3_full_path(
+            config['bucket_name'], config['folder_name_harvest']
+        ),
+        partition_cols=['year', 'month', 'day'],
+        filename_prefix=get_current_datetime(),
+        database=config['staging_glue_db'],
+        table='harvest_lifecycle_record',
+        mode='append',
+    )
+
+
+def write_lagoon_to_s3():
+    config = get_config()
+    data = load_data_to_s3_glue()
+    write_dataframe_to_s3_glue(
+        df=data["lagoon_date_partitioned_df"],
+        path=s3_full_path(
+            config['bucket_name'], config['folder_name_lagoon']
+        ),
+        partition_cols=['year', 'month', 'day'],
+        filename_prefix=get_current_datetime(),
+        database=config['staging_glue_db'],
+        table='lagoon_environmental_log',
+        mode='append',
+    )
+
+
 dag = DAG(
     dag_id='mare_viva_dag',
     default_args=default_args,
@@ -26,36 +58,14 @@ dag = DAG(
 
 harvest_operator = PythonOperator(
     dag=dag,
-    python_callable=write_dataframe_to_s3_glue,
-    op_kwargs={
-        'df': load_data_to_s3_glue()["harvest_date_partitioned_df"],
-        'path': s3_full_path(
-            get_config()['bucket_name'], get_config()['folder_name_harvest']
-        ),
-        'partition_cols': ['year', 'month', 'day'],
-        'filename_prefix': get_current_datetime(),
-        'database': get_config()['staging_glue_db'],
-        'table': 'harvest_lifecycle_record',
-        'mode': 'append',
-    },
+    python_callable=write_harvest_to_s3,
     task_id='harvest_s3_glue_task',
 )
 
 
 lagoon_operator = PythonOperator(
     dag=dag,
-    python_callable=write_dataframe_to_s3_glue,
-    op_kwargs={
-        'df': load_data_to_s3_glue()["lagoon_date_partitioned_df"],
-        'path': s3_full_path(
-            get_config()['bucket_name'], get_config()['folder_name_lagoon']
-        ),
-        'partition_cols': ['year', 'month', 'day'],
-        'filename_prefix': get_current_datetime(),
-        'database': get_config()['staging_glue_db'],
-        'table': 'lagoon_environmental_log',
-        'mode': 'append',
-    },
+    python_callable=write_lagoon_to_s3,
     task_id='lagoon_s3_glue_task',
 )
 
