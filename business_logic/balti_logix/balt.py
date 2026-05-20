@@ -2,7 +2,6 @@ import logging
 
 import awswrangler as wr
 from airflow.sdk import Variable
-
 from plugins.aws import get_s3_client
 from plugins.date_utils import get_partitioned_date
 from plugins.pandas_helper import write_partitioned_df

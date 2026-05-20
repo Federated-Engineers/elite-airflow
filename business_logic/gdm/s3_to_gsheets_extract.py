@@ -2,7 +2,6 @@ import logging
 
 import awswrangler as wr
 from airflow.sdk import Variable
-
 from plugins.google_sheet import append_dataframe_to_sheet
 from plugins.s3_helper import get_latest_s3_file
 

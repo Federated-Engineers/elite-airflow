@@ -2,7 +2,6 @@ import json
 import logging
 
 from airflow.models import Variable
-
 from plugins.aws import get_ssm_parameter
 from plugins.database import (postgres_db_connection,
                               postgres_query_output_to_df)
@@ -28,13 +27,18 @@ def get_config():
     Returns:
         dict: Configuration parameters including:
             - bucket_name: S3 bucket name.
+            Update this to your actual production bucket.
             - folder_name_harvest: S3 folder for harvest data.
             - folder_name_lagoon: S3 folder for lagoon data.
             - glue_production_db: Production Glue database name.
+            if production db is not used, you can ignore this parameter.
             - staging_glue_db: Staging Glue database name.
+            As with production db, if staging db is not used,
+            you can ignore this parameter.
             - ssm_credentials_link: SSM path to DB credentials.
     """
     return Variable.get("config", deserialize_json=True)
+# Update "config" to your actual Airflow Variable name if different.
 
 
 def get_db_connection():
