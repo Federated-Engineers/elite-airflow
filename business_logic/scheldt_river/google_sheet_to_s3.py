@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 import awswrangler as wr
 import pandas as pd
 from airflow.sdk import Variable
+
 from plugins.date_utils import get_current_datetime
 from plugins.google_sheet import get_data_from_gsheet
 
