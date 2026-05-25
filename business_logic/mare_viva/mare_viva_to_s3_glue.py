@@ -2,23 +2,12 @@ import json
 import logging
 
 from airflow.models import Variable
-
 from plugins.aws import get_ssm_parameter
 from plugins.database import (postgres_db_connection,
                               postgres_query_output_to_df)
 from plugins.pandas_helper import add_ingestion_timestamp, table_partition_cols
 
 logger = logging.getLogger(__name__)
-
-
-config = {
-    "bucket_name": "federated-engineers-staging-elite-data-lake",
-    "folder_name_harvest": "harvest_lifecycle_record",
-    "folder_name_lagoon": "lagoon_environmental_log",
-    "glue_production_db": "elite-mare-viva",
-    "staging_glue_db": "federated-engineers-elite-staging-db",
-    "ssm_credentials_link": "/supabase/database/credentials",
-}
 
 
 def get_config():
