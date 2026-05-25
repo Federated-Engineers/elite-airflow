@@ -24,7 +24,7 @@ def get_config():
             if production db is not used, you can ignore this parameter.
             - staging_glue_db: Staging Glue database name.
             As with production db, if staging db is not used,
-            you can ignore this parameter.
+            ignore this parameter.
             - ssm_credentials_link: SSM path to DB credentials.
     """
     return Variable.get("config", deserialize_json=True)
