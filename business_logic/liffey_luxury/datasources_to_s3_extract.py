@@ -1,0 +1,103 @@
+import json
+import logging
+
+import awswrangler as wr
+import pandas as pd
+from airflow.sdk import Variable
+
+from plugins.aws import get_ssm_parameter
+from plugins.database import db_connection, db_query_results_to_df
+from plugins.google_sheet import get_data_from_gsheet
+from plugins.s3_helper import read_latest_data_from_s3
+
+logger = logging.getLogger(__name__)
+
+config = Variable.get("liffey_luxury_config", deserialize_json=True)
+sensitive_config = Variable.get("liffey_luxury_sensitive_config",
+                                deserialize_json=True)
+
+bucket = config["s3"]["bucket_name"]
+base_folder = config["s3"]["base_folder"]
+
+
+def gsheet_to_s3():
+    """Extract marketing data from a Google Sheet and write to S3 in Parquet
+    format.
+
+    All variables needed for this function are retrieved from Airflow Variables
+    The variables include Google Sheet ID, SSM path for Google credentials,
+    S3 paths.
+    """
+
+    gsheet_id = config["google_sheet"]["sheet_id"]
+    google_ssm_path = sensitive_config["google_ssm_path"]
+
+    logger.info(f"Connecting to Google Sheet with ID: {gsheet_id}")
+
+    data = get_data_from_gsheet(gsheet_id, google_ssm_path)
+    logger.info("Data extracted from Google Sheet")
+
+    incoming_marketing_df = pd.DataFrame(data)
+    current_marketing_df = read_latest_data_from_s3(
+        bucket=bucket, prefix=config["s3"]["marketing_path"])
+
+    try:
+        pd.testing.assert_frame_equal(incoming_marketing_df,
+                                      current_marketing_df,
+                                      check_dtype=False)
+        logger.info("No new marketing data to write to S3.")
+
+    except AssertionError:
+        marketing_folder = config["s3"]["marketing_folder"]
+        marketing_s3_path = (f"s3://{base_folder}/{marketing_folder}/"
+                             f"marketing_crm.parquet")
+
+        wr.s3.to_parquet(df=incoming_marketing_df,
+                         path=marketing_s3_path)
+
+        logger.info(f"Data written to S3: {marketing_s3_path}")
+
+
+def postgres_to_s3():
+    """Extract orders data from a PostgreSQL database and write to S3
+    in Parquet format. All others variables needed for this function
+    are retrieved from Airflow Variables.
+
+    Args:
+        query: The SQL query to execute against the PostgreSQL
+        database.
+    """
+
+    logger.info("Starting PostgreSQL to S3 extraction.")
+    db_ssm_path = sensitive_config["db_ssm_path"]
+    db_cred = json.loads(get_ssm_parameter(db_ssm_path))
+
+    con = db_connection(db_cred)
+    logger.info("Database connection established.")
+
+    query = "SELECT * FROM historical.liffey_luxury_order_transactions;"
+    incoming_orders_df = db_query_results_to_df(connection=con,
+                                                query=query)
+
+    current_orders_df = read_latest_data_from_s3(
+        bucket=bucket, prefix=config["s3"]["orders_path"])
+
+    try:
+        pd.testing.assert_frame_equal(incoming_orders_df,
+                                      current_orders_df, check_dtype=False)
+        logger.info("No new orders data to write to S3.")
+
+    except AssertionError:
+        orders_folder = config["s3"]["orders_folder"]
+        orders_s3_path = (f"s3://{base_folder}/"
+                          f"{orders_folder}/orders.parquet")
+
+        logger.info("Extracting data from PostgreSQL and writing to S3.")
+        wr.s3.to_parquet(df=incoming_orders_df,
+                         path=orders_s3_path,
+                         dataset=True,
+                         mode="overwrite")
+
+        logger.info(f"Data written to S3: {orders_s3_path}")
+
+    con.close()
