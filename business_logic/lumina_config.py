@@ -1,6 +1,7 @@
 import json
 
 from airflow.models import Variable
+
 from plugins.aws import get_ssm_parameter
 
 config = Variable.get("lumina_bricks_config", deserialize_json=True)

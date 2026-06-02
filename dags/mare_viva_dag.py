@@ -1,15 +1,15 @@
-import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
+
 from business_logic.mare_viva.mare_viva_to_s3_glue import (
     get_config, load_data_to_s3_glue)
 from plugins.date_utils import get_current_datetime
 from plugins.s3_helper import s3_full_path, write_dataframe_to_s3_glue
 
 default_args = {
-    'start_date': datetime.datetime(2026, 1, 1),
+    'start_date': datetime(2026, 1, 1),
     'retries': 2,
     'retry_delay': timedelta(seconds=2),
 }

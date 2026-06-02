@@ -4,6 +4,7 @@ import logging
 import awswrangler as wr
 import pandas as pd
 from airflow.sdk import Variable
+
 from plugins.aws import get_ssm_parameter
 from plugins.database import db_connection, db_query_results_to_df
 from plugins.google_sheet import get_data_from_gsheet
