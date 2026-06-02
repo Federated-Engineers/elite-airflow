@@ -43,13 +43,20 @@ def check_and_write_data_to_s3():
     logger.info("Reading latest joined data in S3.")
 
     current_joined_path = config["s3"]["joined_path"]
-    current_joined_data = read_latest_data_from_s3(
-        bucket,
-        current_joined_path
-    )
+
+    try:
+        current_joined_data = read_latest_data_from_s3(
+            bucket, current_joined_path)
+
+    except ValueError:
+        logger.info("No existing joined data found in S3."
+                    "Writing for the first time.")
+        current_joined_data = None
 
     incoming_joined_data = read_and_join_data()
-    if incoming_joined_data.equals(current_joined_data):
+
+    if current_joined_data is not None and\
+            incoming_joined_data.equals(current_joined_data):
         logger.info("No new data to write to S3.")
 
     else:
