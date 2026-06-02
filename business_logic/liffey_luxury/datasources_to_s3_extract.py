@@ -38,7 +38,7 @@ def gsheet_to_s3():
     logger.info("Data extracted from Google Sheet")
 
     incoming_marketing_df = pd.DataFrame(data)
-    
+
     try:
         current_marketing_df = read_latest_data_from_s3(
             bucket=bucket, prefix=config["s3"]["marketing_path"])
@@ -84,7 +84,6 @@ def postgres_to_s3():
         current_orders_df = read_latest_data_from_s3(
             bucket=bucket, prefix=config["s3"]["orders_path"])
 
-    
         pd.testing.assert_frame_equal(incoming_orders_df,
                                       current_orders_df, check_dtype=False)
         logger.info("No new orders data to write to S3.")
