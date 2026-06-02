@@ -38,16 +38,17 @@ def gsheet_to_s3():
     logger.info("Data extracted from Google Sheet")
 
     incoming_marketing_df = pd.DataFrame(data)
-    current_marketing_df = read_latest_data_from_s3(
-        bucket=bucket, prefix=config["s3"]["marketing_path"])
-
+    
     try:
+        current_marketing_df = read_latest_data_from_s3(
+            bucket=bucket, prefix=config["s3"]["marketing_path"])
+
         pd.testing.assert_frame_equal(incoming_marketing_df,
                                       current_marketing_df,
                                       check_dtype=False)
         logger.info("No new marketing data to write to S3.")
 
-    except AssertionError:
+    except Exception:
         marketing_folder = config["s3"]["marketing_folder"]
         marketing_s3_path = (f"s3://{base_folder}/{marketing_folder}/"
                              f"marketing_crm.parquet")
@@ -79,15 +80,16 @@ def postgres_to_s3():
     incoming_orders_df = db_query_results_to_df(connection=con,
                                                 query=query)
 
-    current_orders_df = read_latest_data_from_s3(
-        bucket=bucket, prefix=config["s3"]["orders_path"])
-
     try:
+        current_orders_df = read_latest_data_from_s3(
+            bucket=bucket, prefix=config["s3"]["orders_path"])
+
+    
         pd.testing.assert_frame_equal(incoming_orders_df,
                                       current_orders_df, check_dtype=False)
         logger.info("No new orders data to write to S3.")
 
-    except AssertionError:
+    except Exception:
         orders_folder = config["s3"]["orders_folder"]
         orders_s3_path = (f"s3://{base_folder}/"
                           f"{orders_folder}/orders.parquet")
