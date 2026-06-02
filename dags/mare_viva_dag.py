@@ -3,7 +3,6 @@ from datetime import timedelta
 
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
-
 from business_logic.mare_viva.mare_viva_to_s3_glue import (
     get_config, load_data_to_s3_glue)
 from plugins.date_utils import get_current_datetime
@@ -26,7 +25,7 @@ def write_harvest_to_s3():
         ),
         partition_cols=['year', 'month', 'day'],
         filename_prefix=get_current_datetime(),
-        database=config['staging_glue_db'],
+        database=config['glue_production_db'],
         table='harvest_lifecycle_record',
         mode='append',
     )
@@ -42,7 +41,7 @@ def write_lagoon_to_s3():
         ),
         partition_cols=['year', 'month', 'day'],
         filename_prefix=get_current_datetime(),
-        database=config['staging_glue_db'],
+        database=config['glue_production_db'],
         table='lagoon_environmental_log',
         mode='append',
     )
