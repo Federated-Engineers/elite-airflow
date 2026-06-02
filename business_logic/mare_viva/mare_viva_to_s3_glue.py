@@ -2,7 +2,6 @@ import json
 import logging
 
 from airflow.models import Variable
-
 from plugins.aws import get_ssm_parameter
 from plugins.database import (postgres_db_connection,
                               postgres_query_output_to_df)
