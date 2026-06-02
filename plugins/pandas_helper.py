@@ -57,3 +57,19 @@ def add_ingestion_timestamp(df: pd.DataFrame):
     """
     df["ingestion_timestamp"] = pd.Timestamp.now(tz="UTC")
     return df
+
+
+def table_partition_cols(df: pd.DataFrame):
+    """
+    A function that adds partition columns for a given DataFrame.
+    Args:
+        df (pd.DataFrame): Input DataFrame with an 'ingestion_timestamp'
+            column. Call add_ingestion_timestamp on the df first to
+            ensure the column exists.
+    Returns:
+        pd.DataFrame: The DataFrame with partition columns added.
+    """
+    df["year"] = df["ingestion_timestamp"].dt.year
+    df["month"] = df["ingestion_timestamp"].dt.month
+    df["day"] = df["ingestion_timestamp"].dt.day
+    return df

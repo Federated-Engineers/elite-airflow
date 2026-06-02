@@ -7,7 +7,7 @@ import psycopg2
 logging.basicConfig(level=logging.INFO)
 
 
-def db_connection(db_cred: dict):
+def postgres_db_connection(db_cred: dict):
     """
     Create a PostgreSQL database connection.
 
@@ -24,13 +24,31 @@ def db_connection(db_cred: dict):
     Returns:
         connection: psycopg2 connection object
     """
-
-    return psycopg2.connect(
+    connection = psycopg2.connect(
         host=db_cred["host"],
         dbname=db_cred["database_name"],
         user=db_cred["username"],
         password=db_cred["password"],
     )
+    return connection
+
+
+def postgres_query_output_to_df(schema: str, table_name: str, connection):
+    """
+    Extract data from a specified table in the PostgreSQL database.
+
+    Args:
+        schema (str): The schema name.
+        table_name (str): The table name.
+        connection: psycopg2 connection object returned by
+            postgres_db_connection.
+
+    Returns:
+        pd.DataFrame: The extracted data as a pandas DataFrame.
+    """
+    query = f"SELECT * FROM {schema}.{table_name};"
+    df = pd.read_sql(query, connection)
+    return df
 
 
 def load_postgres_table_to_s3(

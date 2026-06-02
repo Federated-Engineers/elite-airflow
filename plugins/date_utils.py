@@ -49,3 +49,21 @@ def get_partitioned_date(target_date, df):
     df["month"] = month
     df["day"] = day
     return df
+
+
+def date_partition_path(current_datetime) -> str:
+    """
+    A function that generates date hive partition path
+    based on the current date and time.
+    Args:
+        current_datetime (str): The current date and time.
+        The expected format of current_datetime is "YYYY-MM-DD_HH:MM:SS".
+        The get_current_datetime function can be used to generate
+        the current_datetime string in the correct format.
+    Returns:
+        str: A string containing a year/month/day partition path.
+    """
+    year, month, day = current_datetime.split("_")[0].split("-")
+
+    date_hive_partition = f"year={year}/month={month}/day={day}"
+    return date_hive_partition
