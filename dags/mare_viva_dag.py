@@ -1,5 +1,4 @@
-import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
@@ -10,7 +9,7 @@ from plugins.date_utils import get_current_datetime
 from plugins.s3_helper import s3_full_path, write_dataframe_to_s3_glue
 
 default_args = {
-    'start_date': datetime.datetime(2026, 1, 1),
+    'start_date': datetime(2026, 1, 1),
     'retries': 2,
     'retry_delay': timedelta(seconds=2),
 }
@@ -26,7 +25,7 @@ def write_harvest_to_s3():
         ),
         partition_cols=['year', 'month', 'day'],
         filename_prefix=get_current_datetime(),
-        database=config['staging_glue_db'],
+        database=config['glue_production_db'],
         table='harvest_lifecycle_record',
         mode='append',
     )
@@ -42,7 +41,7 @@ def write_lagoon_to_s3():
         ),
         partition_cols=['year', 'month', 'day'],
         filename_prefix=get_current_datetime(),
-        database=config['staging_glue_db'],
+        database=config['glue_production_db'],
         table='lagoon_environmental_log',
         mode='append',
     )
