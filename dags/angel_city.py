@@ -1,14 +1,28 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from airflow import DAG
 from airflow.models import Variable
 from airflow.providers.amazon.aws.operators.ecs import EcsRunTaskOperator
 
+default_args = {
+    "owner": "elite-data-engineers",
+    "retries": 2,
+    "retry_delay": timedelta(seconds=5)
+}
+
 with DAG(
     dag_id="angel_city_dbt_pipeline",
+    description="Trigger ECS Fargate task to execute Angel City dbt workloads",
     start_date=datetime(2026, 1, 1),
     schedule=None,
-    catchup=False
+    catchup=False,
+    tags=[
+        "angel-city",
+        "dbt",
+        "ecs",
+        "fargate",
+        "snowflake"
+    ]
 ):
 
     network_config = Variable.get(
