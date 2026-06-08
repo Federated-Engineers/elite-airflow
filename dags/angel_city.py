@@ -1,11 +1,14 @@
+import logging
 from datetime import datetime, timedelta
 
 from airflow import DAG
 from airflow.models import Variable
 from airflow.providers.amazon.aws.operators.ecs import EcsRunTaskOperator
 
+logger = logging.getLogger(__name__)
+
 default_args = {
-    "owner": "elite-data-engineers",
+    "owner": "Federated-Engineers",
     "retries": 2,
     "retry_delay": timedelta(seconds=5)
 }
@@ -24,10 +27,17 @@ with DAG(
         "snowflake"
     ]
 ):
+    logger.info(
+        "Loading network configuration from Airflow Variables"
+    )
 
     network_config = Variable.get(
         "elite_dbt_network_config",
         deserialize_json=True
+    )
+
+    logger.info(
+        "Network configuration loaded successfully"
     )
 
     dbt_run = EcsRunTaskOperator(
