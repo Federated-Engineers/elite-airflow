@@ -19,6 +19,7 @@ with DAG(
     start_date=datetime(2026, 1, 1),
     schedule=None,
     catchup=False,
+    default_args=default_args,
     tags=[
         "angel-city",
         "dbt",
@@ -27,14 +28,26 @@ with DAG(
         "snowflake"
     ]
 ):
+
     logger.info(
         "Loading network configuration from Airflow Variables"
     )
 
-    network_config = Variable.get(
-        "elite_dbt_network_config",
-        deserialize_json=True
-    )
+    try:
+        network_config = Variable.get(
+            "elite_dbt_network_config",
+            deserialize_json=True
+        )
+
+    except KeyError as exc:
+        logger.error(
+            "Airflow variable 'elite_dbt_network_config' not found"
+        )
+
+        raise ValueError(
+            "Airflow variable 'elite_dbt_network_config' not found. "
+            "Please create the variable before running this DAG."
+        ) from exc
 
     logger.info(
         "Network configuration loaded successfully"
@@ -48,7 +61,6 @@ with DAG(
         network_configuration={
             "awsvpcConfiguration": network_config
         },
-
         overrides={
             "containerOverrides": [
                 {
