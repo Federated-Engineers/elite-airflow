@@ -4,3 +4,4 @@ boto3==1.42.63
 gspread==6.2.1
 google-auth==2.49.0
 apache-airflow-providers-amazon
+apache-airflow-providers-snowflake
