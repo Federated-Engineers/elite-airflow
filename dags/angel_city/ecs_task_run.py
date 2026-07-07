@@ -1,6 +1,7 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import timedelta
 
+import pendulum
 from airflow import DAG
 from airflow.models import Variable
 from airflow.providers.amazon.aws.operators.ecs import EcsRunTaskOperator
@@ -16,8 +17,8 @@ default_args = {
 with DAG(
     dag_id="angel_city_dbt_pipeline",
     description="Trigger ECS Fargate task to execute Angel City dbt workloads",
-    start_date=datetime(2026, 1, 1),
-    schedule=None,
+    start_date=pendulum.datetime(2026, 6, 1, tz="Africa/Lagos"),
+    schedule="0 11 * * *",
     catchup=False,
     default_args=default_args,
     tags=[
@@ -70,3 +71,5 @@ with DAG(
             ]
         }
     )
+
+dbt_run
