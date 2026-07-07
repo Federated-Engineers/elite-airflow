@@ -52,3 +52,9 @@ with DAG(
         conn_id="snowflake_default",
         sql="sql/copy_providers.sql",
     )
+
+copy_claims_to_snowflake
+copy_diagnoses_to_snowflake
+copy_encounters_to_snowflake
+copy_patients_to_snowflake
+copy_providers_to_snowflake
