@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.models import Variable
 from airflow.providers.amazon.aws.operators.ecs import EcsRunTaskOperator
+from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 
 logger = logging.getLogger(__name__)
 
@@ -25,8 +26,8 @@ with DAG(
 ) as dag:
 
     logger.info(
-        "Loading network configuration (subnets,sg,ip)"
-        "from Airflow Variables"
+        "Loading network configuration (subnets,sg,ip) \
+            from Airflow Variables"
     )
 
     network_config = Variable.get(
@@ -34,8 +35,15 @@ with DAG(
         deserialize_json=True
     )
 
-    run_task = EcsRunTaskOperator(
-        task_id="run_task",
+    refresh_bronze_external_table = SQLExecuteQueryOperator(
+        task_id="refresh_bronze_external_table",
+        conn_id="snowflake_default",
+        sql="""
+            ALTER EXTERNAL TABLE PROD_DB.BRONZE."accounts" REFRESH;
+        """)
+
+    run_dbt_transformation = EcsRunTaskOperator(
+        task_id="run_dbt_transformation",
         cluster="elite-kings-county-dbt",
         task_definition="elite-kings-county-dbt-task",
         launch_type="FARGATE",
@@ -51,5 +59,9 @@ with DAG(
                     "command": ["./run_dbt.sh"],
                         }
                     ]
-        }
+        },
+
+        reattach=True
     )
+
+    refresh_bronze_external_table >> run_dbt_transformation
