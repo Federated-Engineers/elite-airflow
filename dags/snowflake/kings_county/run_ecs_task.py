@@ -38,9 +38,9 @@ with DAG(
     refresh_bronze_external_table = SQLExecuteQueryOperator(
         task_id="refresh_bronze_external_table",
         conn_id="snowflake_default",
-        sql="""
-            ALTER EXTERNAL TABLE PROD_DB.BRONZE."accounts" REFRESH;
-        """)
+        sql="./refresh_query.sql")
+
+    logger.info("External table refresh complete")
 
     run_dbt_transformation = EcsRunTaskOperator(
         task_id="run_dbt_transformation",
