@@ -69,7 +69,12 @@ with DAG(
                     "command": ["./run_dbt.sh"]
                 }
             ]
-        }
+        },
+        reattach=True,
+        awslogs_group="angel-city-health-dbt-logs",
+        awslogs_region="eu-central-1",
+        awslogs_stream_prefix="ecs/elite-dbt",
+        number_logs_exception=100
     )
 
 dbt_run
