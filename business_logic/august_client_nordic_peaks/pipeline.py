@@ -1,13 +1,9 @@
-# import sys
-
-# sys.path.append("/home/taofeecoh/federated/nordic/elite-airflow")
-
-from module import load_gsheet_to_s3
-
 from config import (DATA_SOURCES, S3_FOLDER_PATH,
                     SERVICE_ACCOUNT_CREDENTIALS_PATH)
+from module import load_gsheet_to_s3
 
-data_sources_key = [(source_name, id) for source_name, id in DATA_SOURCES.items()]
+data_sources_key = ([(source_name, id)
+                     for source_name, id in DATA_SOURCES.items()])
 
 load_data = load_gsheet_to_s3(
     googlesheet_id=data_sources_key[0][1],
