@@ -1,12 +1,11 @@
 from datetime import datetime, timedelta
 
 from airflow import DAG
-from airflow.providers.standard.operators.empty import EmptyOperator
 from airflow.providers.standard.operators.python import PythonOperator
 
-from business_logic.august_client_nordic_peaks.config import (
+from business_logic.client_nordic_peaks.config import (
     DATA_SOURCES, S3_FOLDER_PATH, SERVICE_ACCOUNT_CREDENTIALS_PATH)
-from business_logic.august_client_nordic_peaks.module import load_gsheet_to_s3
+from business_logic.client_nordic_peaks.module import load_gsheet_to_s3
 
 default_args = {
     "owner": "client_nordic_peak",
@@ -22,8 +21,6 @@ with DAG(
     default_args=default_args,
 ):
 
-    start_tasks = EmptyOperator(task_id="start")
-
     extract_sheets = [
         PythonOperator(
             task_id=f"extract_{sheet_name}",
@@ -38,6 +35,5 @@ with DAG(
         for sheet_name, sheet_id in DATA_SOURCES.items()
     ]
 
-    end_tasks = EmptyOperator(task_id="end")
 
-start_tasks >> extract_sheets >> end_tasks
+extract_sheets
