@@ -15,14 +15,14 @@ default_args = {
     "owner": "client_nordic_peak",
     "retries": 3,
     "retry_delay": timedelta(minutes=1),
-    "catchup": False
+    "catchup": False,
 }
 
 with DAG(
     dag_id="client_nordic_peaks",
     start_date=datetime(2026, 8, 20),
     schedule="0 23 * * *",
-    default_args=default_args
+    default_args=default_args,
 ):
 
     start_tasks = EmptyOperator(task_id="start")
@@ -35,10 +35,9 @@ with DAG(
                 "googlesheet_id": sheet_id,
                 "ssm_path": SERVICE_ACCOUNT_CREDENTIALS_PATH,
                 "folder_path": S3_FOLDER_PATH,
-                "file_name": sheet_name
-            }
+                "file_name": sheet_name,
+            },
         )
-
         for sheet_name, sheet_id in DATA_SOURCES.items()
     ]
 
