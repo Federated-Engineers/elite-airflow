@@ -1,5 +1,7 @@
 import logging
 
+from datetime import date
+
 import awswrangler as wr
 import boto3
 import pandas as pd
@@ -12,7 +14,7 @@ def load_gsheet_to_s3(
         gsheet_id: str,
         ssm_path: str,
         folder_path: str,
-        sheet_name: str = None
+        file_name: str
 ):
     """
     Function to load googlesheet data to aws bucket
@@ -30,7 +32,7 @@ def load_gsheet_to_s3(
         ssm_path=ssm_path
     )
     dataframe = pd.DataFrame(data)
-    file_path = ""
+    file_path = f"{folder_path}/date={date.today()}/{file_name}"
     wr.s3.to_parquet(
         df=dataframe,
         path=file_path,
