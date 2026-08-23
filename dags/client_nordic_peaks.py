@@ -28,17 +28,17 @@ with DAG(
 
     extract_sheets = [
           PythonOperator(
-          task_id=f"extract_{table}",
+          task_id=f"extract_{sheet_name}",
           python_callable=load_gsheet_to_s3,
           op_kwargs={
-                "connection_string": DATABASE_URL,
-                "schema_name": DAG_CONFIG["schema_name"],
-                "table_name": table,
-                "storage_path": f"{DAG_CONFIG["bucket_path"]}/{table}/"
+                "googlesheet_id": DATA_SOURCES[sheet_id],
+                "ssm_path": SERVICE_ACCOUNT_CREDENTIALS_PATH,
+                "folder_path": S3_FOLDER_PATH,
+                "file_name": DATA_SOURCES[sheet_name]
           }
         )
 
-          for table in DAG_CONFIG["tables"]
+          for sheet_name, sheet_id in DATA_SOURCES.items()
     ]
 
 
