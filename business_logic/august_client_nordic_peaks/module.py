@@ -3,10 +3,10 @@ from datetime import date
 
 import awswrangler as wr
 import pandas as pd
-
 from plugins.google_sheet import get_data_from_gsheet
 
 logger = logging.getLogger(__name__)
+
 
 def load_gsheet_to_s3(
         googlesheet_id: str,
