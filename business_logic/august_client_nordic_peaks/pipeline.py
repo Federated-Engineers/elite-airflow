@@ -1,6 +1,6 @@
-import sys
+# import sys
 
-sys.path.append("/home/taofeecoh/federated/nordic/elite-airflow")
+# sys.path.append("/home/taofeecoh/federated/nordic/elite-airflow")
 
 from module import load_gsheet_to_s3
 
