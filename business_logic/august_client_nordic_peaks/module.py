@@ -9,7 +9,7 @@ from plugins.google_sheet import get_data_from_gsheet
 logger = logging.getLogger(__name__)
 
 def load_gsheet_to_s3(
-        gsheet_id: str,
+        googlesheet_id: str,
         ssm_path: str,
         folder_path: str,
         file_name: str
@@ -18,7 +18,7 @@ def load_gsheet_to_s3(
     Function to load googlesheet data to aws bucket
 
     Args:
-        gsheet_id: The Google Sheet ID/key.
+        googlesheet_id: The Google Sheet ID/key.
         ssm_path: The SSM parameter path where the Google service account
         credentials are stored.
     Returns:
@@ -26,7 +26,7 @@ def load_gsheet_to_s3(
     """
 
     data = get_data_from_gsheet(
-        gsheet_id=gsheet_id,
+        gsheet_id=googlesheet_id,
         ssm_path=ssm_path
     )
     dataframe = pd.DataFrame(data)
