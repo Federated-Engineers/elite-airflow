@@ -8,7 +8,8 @@ DATA_SOURCES = {
 }
 
 SERVICE_ACCOUNT_CREDENTIALS_PATH = "/production/google-service-account/credentials"
-BUCKET_NAME = "federated-engineers-production-elite-nordics-peaks-storage"
+# BUCKET_NAME = "federated-engineers-production-elite-nordics-peaks-storage"
+BUCKET_NAME = "federated-engineers-staging-elite-data-lake"
 S3_FOLDER_PATH = s3_full_path(
     BUCKET_NAME, "raw"
 )
