@@ -1,6 +1,8 @@
-from config import (DATA_SOURCES, S3_FOLDER_PATH,
-                    SERVICE_ACCOUNT_CREDENTIALS_PATH)
-
+from config import (
+    DATA_SOURCES,
+    S3_FOLDER_PATH,
+    SERVICE_ACCOUNT_CREDENTIALS_PATH,
+)
 from module import load_gsheet_to_s3
 
 data_sources_key = ([(source_name, id)
