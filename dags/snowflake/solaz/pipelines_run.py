@@ -7,6 +7,7 @@ from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 from airflow.providers.standard.operators.python import PythonOperator
 
 from business_logic.solaz.gsheets_to_snowflake import gsheets_to_snowflake
+from business_logic.solaz.postgres_to_snowflake import postgres_to_snowflake
 
 logger = logging.getLogger(__name__)
 
@@ -49,4 +50,9 @@ with DAG(
     python_callable=gsheets_to_snowflake,
     )
 
-    refresh_bronze_external_table, extract_from_gsheet_and_push_to_snowflake
+    extract_from_postgres_and_push_to_snowflake = PythonOperator(
+        task_id="extract_from_postgres_and_push_to_snowflake",
+        python_callable=postgres_to_snowflake,
+    )
+
+    refresh_bronze_external_table, extract_from_gsheet_and_push_to_snowflake, postgres_to_snowflake

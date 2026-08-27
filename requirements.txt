@@ -5,3 +5,4 @@ gspread==6.2.1
 google-auth==2.49.0
 apache-airflow-providers-amazon
 apache-airflow-providers-snowflake
+snowflake-connector-python[pandas]==4.7.1
