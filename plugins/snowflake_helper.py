@@ -55,7 +55,7 @@ def write_dataframe_to_snowflake(
     """
 
     if df.empty:
-        raise ValueError("No data to write to Snowflake")
+        logger.info("No data to write to Snowflake")
 
     no_pre_existing_connection = connection is None
 

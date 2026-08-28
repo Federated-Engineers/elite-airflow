@@ -127,7 +127,6 @@ def db_query_results_to_df(
     and returns the results as a pandas DataFrame.
     Parameters:
     - query: SQL query to execute
-    - base_path: S3 destination path
 
     Returns:
     - df: pandas DataFrame containing the query results
@@ -137,7 +136,7 @@ def db_query_results_to_df(
     df = pd.read_sql_query(query, connection)
 
     if df.empty:
-        raise ValueError("No data to write to S3.")
+        logging.info("No new data to write.")
 
     logging.info("Query executed successfully.")
     return df

@@ -46,8 +46,8 @@ with DAG(
     logger.info("External table refresh complete")
 
     extract_from_gsheet_and_push_to_snowflake = PythonOperator(
-    task_id="extract_from_gsheet_and_push_to_snowflake",
-    python_callable=gsheets_to_snowflake,
+        task_id="extract_from_gsheet_and_push_to_snowflake",
+        python_callable=gsheets_to_snowflake,
     )
 
     extract_from_postgres_and_push_to_snowflake = PythonOperator(
@@ -55,4 +55,8 @@ with DAG(
         python_callable=postgres_to_snowflake,
     )
 
-    refresh_bronze_external_table, extract_from_gsheet_and_push_to_snowflake, postgres_to_snowflake
+    (
+        refresh_bronze_external_table,
+        extract_from_gsheet_and_push_to_snowflake,
+        extract_from_postgres_and_push_to_snowflake,
+    )
