@@ -43,7 +43,7 @@ If your Airflow DAG require talking to AWS and you would like to test your DAG l
   - This will prompt you for your `aws access key`, `aws secret key` and a `keychain password`.
 - After that, start airflow by running `aws-vault exec elite-airflow-local -- docker compose up -d --build` 
   - This will start airflow and inject a temporary Access and Secret key as an environment variable in your airflow service containers.
-  - You can confirm the environemnt variable defined [HERE](https://github.com/Federated-Engineers/elite-airflow/blob/main/docker-compose.yaml#L64-L67) inside any of your airflow service container.
+  - You can confirm the environment variable defined [HERE](https://github.com/Federated-Engineers/elite-airflow/blob/main/docker-compose.yaml#L64-L67) inside any of your airflow service container.
   - This will also use the Dockerfile in the repository to build the image with the dependencies defined in the `requirements.txt`.
   - The airflow services are started using the image built above.
 - Visit `localhost:8080` to view the airflow UI.
