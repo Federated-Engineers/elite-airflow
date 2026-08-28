@@ -15,7 +15,7 @@ default_args = {
     "owner": "solaz_pipelines_run",
     "start_date": datetime(2026, 1, 1),
     "retries": 2,
-    "retry_delay": timedelta(minutes=5),
+    "retry_delay": timedelta(minutes=3),
 }
 
 with DAG(

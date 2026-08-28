@@ -20,10 +20,12 @@ def get_last_transaction_timestamp(connection, database, schema, table):
     cursor = connection.cursor()
 
     try:
+        table_path = f'"{database}"."{schema}"."{table}"'
+
         cursor.execute(
             f"""
             SELECT MAX(TRANSACTION_TIMESTAMP)
-            FROM {database}.{schema}.{table};
+            FROM {table_path};
             """
         )
 

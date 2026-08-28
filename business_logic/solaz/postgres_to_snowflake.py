@@ -182,7 +182,7 @@ def postgres_to_snowflake():
         products_df = get_new_products(products_df, existing_products_ids)
 
         if products_df.empty:
-            logger.info("No new data to extract from dim_DIM_PRODUCTS")
+            logger.info("No new data to extract from DIM_PRODUCTS")
             return
 
         products_df["LOADED_AT"] = pd.Timestamp.now().strftime(
