@@ -80,3 +80,24 @@ def append_dataframe_to_sheet(df, spreadsheet_id: str, ssm_path: str,
     rows = df.values.tolist()
     worksheet.append_rows(rows)
     logger.info(f"Appended {len(rows)} rows to {worksheet_name}")
+
+
+def get_values_from_gsheet(gsheet_id: str, ssm_path: str, sheet_name: str):
+    """Ingest every cell of a worksheet as text, without type coercion.
+
+    Args:
+        gsheet_id: The Google Sheet ID/key.
+        ssm_path: The SSM parameter path where the Google service account
+        credentials are stored.
+        sheet_name: The worksheet (tab) name to read.
+    Returns:
+        A list of rows, each a list of cell strings. Row 0 is the header.
+    """
+
+    gc = get_google_sheets_client(ssm_path)
+    worksheet = gc.open_by_key(gsheet_id).worksheet(sheet_name)
+    sheet_values = worksheet.get_all_values()
+
+    logger.info(f"Read {len(sheet_values)} rows from '{sheet_name}'")
+
+    return sheet_values
