@@ -7,3 +7,4 @@ pandas==2.3.3
 apache-airflow-providers-amazon
 apache-airflow-providers-snowflake
 snowflake-connector-python[pandas]==4.7.1
+apache-airflow-providers-postgres

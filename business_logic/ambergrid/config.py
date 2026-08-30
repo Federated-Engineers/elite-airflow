@@ -17,3 +17,29 @@ WORKSHEET_TO_BRONZE_TABLE = {
         "GSHEET_IMPURITY_WRITEOFFS", "writeoff_id"
     ),
 }
+
+# Postgres source
+POSTGRES_CONN_ID = "ambergrid_postgres"
+POSTGRES_SCHEMA = "ambergrid"
+PG_STAGE = "POSTGRES_AMBERGRID_STAGE"
+
+POSTGRES_TABLE_TO_BRONZE_TABLE = {
+    "plants": (
+        "PG_PLANTS", "plant_id"
+    ),
+    "suppliers": (
+        "PG_SUPPLIERS", "supplier_id"
+    ),
+    "supplier_contracts": (
+        "PG_SUPPLIER_CONTRACTS", "contract_id"
+    ),
+    "fertilizer_sales_invoices": (
+        "PG_FERTILIZER_SALES_INVOICES", "invoice_id"
+    ),
+    "fleet_logistics_logs": (
+        "PG_FLEET_LOGISTICS_LOGS", "pickup_id"
+    ),
+    "gas_grid_injection_daily": (
+        "PG_GAS_GRID_INJECTION_DAILY", "record_id"
+    ),
+}
