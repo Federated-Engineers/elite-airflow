@@ -26,7 +26,6 @@ with DAG(
     start_date=pendulum.datetime(2026, 8, 1, tz="Africa/Lagos"),
     schedule="0 3 * * *",
     catchup=False,
-    max_active_runs=1,
     default_args=default_args,
     tags=[
         "ambergrid",
