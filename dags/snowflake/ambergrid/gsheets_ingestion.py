@@ -9,7 +9,7 @@ from business_logic.ambergrid import config
 from business_logic.ambergrid.gsheet import snapshot_worksheet_to_stage
 
 default_args = {
-    "owner": "Federated-Engineers",
+    "owner": "Federated-Engineers/Ambergrid",
     "retries": 2,
     "retry_delay": timedelta(minutes=2),
     "retry_exponential_backoff": True,
@@ -28,10 +28,12 @@ with DAG(
     catchup=False,
     default_args=default_args,
     tags=[
+        "elite",
         "ambergrid",
         "google_sheets",
         "snowflake",
-        "bronze"
+        "bronze",
+        "dbt_cloud"
     ]
 ):
 
