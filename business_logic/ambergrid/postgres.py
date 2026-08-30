@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 STAGE_NAME = f"{config.BRONZE_SCHEMA}.{config.PG_STAGE}"
 
+
 def _read_source_table(source_table: str) -> list:
     """Read every row of one source table.
 
