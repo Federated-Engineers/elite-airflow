@@ -41,7 +41,7 @@ with DAG(
 
     worksheets = config.WORKSHEET_TO_BRONZE_TABLE.items()
 
-    for worksheet, bronze_table in worksheets:
+    for worksheet, (bronze_table, row_key) in worksheets:
 
         snapshot_task_id = f"snapshot_{worksheet.lower()}"
 
@@ -54,18 +54,19 @@ with DAG(
             },
         )
 
-        copy_into_bronze = SQLExecuteQueryOperator(
-            task_id=f"copy_{worksheet.lower()}_into_bronze",
+        merge_into_bronze = SQLExecuteQueryOperator(
+            task_id=f"merge_{worksheet.lower()}_into_bronze",
             conn_id=config.SNOWFLAKE_CONN_ID,
-            sql="sql/copy_gsheet_into_bronze.sql",
+            sql="sql/merge_gsheet_into_bronze.sql",
             params={
                 "bronze_schema": config.BRONZE_SCHEMA,
                 "stage_name": config.LAB_LEDGER_STAGE,
                 "bronze_table": bronze_table,
+                "row_key": row_key,
                 "worksheet": worksheet,
                 "snapshot_task_id": snapshot_task_id,
             },
             show_return_value_in_logs=True,
         )
 
-        snapshot_to_stage >> copy_into_bronze
+        snapshot_to_stage >> merge_into_bronze
