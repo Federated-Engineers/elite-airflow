@@ -43,3 +43,6 @@ POSTGRES_TABLE_TO_BRONZE_TABLE = {
         "PG_GAS_GRID_INJECTION_DAILY", "record_id"
     ),
 }
+
+# External table
+SCADA_EXTERNAL_TABLE = "SCADA_TELEMETRY"
