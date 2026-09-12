@@ -1,13 +1,8 @@
-from plugins.s3_helper import s3_full_path
+from airflow.models import Variable
 
-DATA_SOURCE = "1IIr3cYvnT7T7IWMD-naJ-IqghvOgP5aFEybT-7ecO2w"
-
+DATA_SOURCE = Variable.get("data_source")
 SERVICE_ACCOUNT_CREDENTIALS_PATH = (
-    "/production/google-service-account/credentials"
+    Variable.get("service_account_credentials")
     )
-# BUCKET_NAME = "federated-engineers-staging-elite-data-lake"
-BUCKET_NAME = "federated-engineers-production-elite-client-alpenmechanik"
-
-S3_FOLDER_PATH = s3_full_path(
-    BUCKET_NAME, "repairpartner"
-)
+FOLDER_PATH = Variable.get("folder_path")
+ALERT_EMAIL = Variable.get("alert_email")

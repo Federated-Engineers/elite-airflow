@@ -3,6 +3,8 @@ from datetime import date
 
 import awswrangler as wr
 import pandas as pd
+from airflow.models import Variable
+from airflow.providers.smtp.notifications.smtp import SmtpNotifier
 
 from plugins.google_sheet import get_data_from_gsheet
 
@@ -41,7 +43,8 @@ def load_gsheet_to_s3(
         else f"{file_name}.csv"
     )
 
-    file_path = f"{folder_path}/date={partition_date}/{output_file_name}"
+    full_bucket_path = f"s3://{folder_path}"
+    file_path = f"{full_bucket_path}/date={partition_date}/{output_file_name}"
     data = get_data_from_gsheet(
         gsheet_id=googlesheet_id,
         ssm_path=ssm_path
@@ -63,3 +66,41 @@ def load_gsheet_to_s3(
         except Exception as e:
             logger.error(e)
             raise
+
+
+def dag_success_alert(context):
+    print("Callback executed")
+    try:
+        SmtpNotifier(
+            from_email=Variable.get("alert_email"),
+            to=Variable.get("alert_email"),
+            subject=f"Airflow DAG Success: {context['dag'].dag_id}",
+            html_content=f"<p>DAG {context['dag'].dag_id} succeeded</p>"
+        ).notify(context)
+        print("Email sent successfully")
+    except Exception as e:
+        print(f"Email failed: {e}")
+        raise
+
+
+def dag_failure_alert(context):
+    print("Callback executed")
+    try:
+        SmtpNotifier(
+            from_email=Variable.get("alert_email"),
+            to=Variable.get("alert_email"),
+            subject=f"Airflow DAG Fail Alert: {context['dag'].dag_id}",
+            html_content=f"""
+                <h3>Task Failed</h3>
+                <p><b>DAG:</b> {context['dag'].dag_id}</p>
+                <p><b>Task:</b> {context['task_instance'].task_id}</p>
+                <p><b>Exception:</b> {context.get('exception')}</p>
+                <p><a href="{
+                    context['task_instance'].log_url
+                    }">View Logs</a></p>
+            """
+        ).notify(context)
+        print("Email sent successfully")
+    except Exception as e:
+        print(f"Email failed: {e}")
+        raise
