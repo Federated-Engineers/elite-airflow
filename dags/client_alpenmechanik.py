@@ -1,38 +1,49 @@
 from datetime import datetime, timedelta
 
 from airflow import DAG
+from airflow.models import Variable
 from airflow.providers.standard.operators.python import PythonOperator
 
-from business_logic.client_alpenmechanik.config import (
-    DATA_SOURCE, S3_FOLDER_PATH, SERVICE_ACCOUNT_CREDENTIALS_PATH)
-from business_logic.client_alpenmechanik.module import load_gsheet_to_s3
+from business_logic.client_alpenmechanik.module import (dag_failure_alert,
+                                                        dag_success_alert,
+                                                        load_gsheet_to_s3)
 
 default_args = {
     "owner": "client_alpenmechanik",
     "retries": 3,
     "retry_delay": timedelta(minutes=1),
-    "email": ["adesanutaofeecoh@gmail.com"],
-    "email_on_failure": True,
-    "catchup": False,
+    "retry_exponential_backoff": True,
+    "max_retry_delay": timedelta(minutes=30),
 }
 
 
 with DAG(
     dag_id="client_alpenmechanik",
+    description=(
+        "extract repair data from googlesheet "
+        "to s3 storage as backend for SFTP server"
+    ),
     start_date=datetime(2026, 9, 7),
-    schedule="0 12 * * *",
+    schedule="13 23 * * *",
+    catchup=False,
+    on_success_callback=dag_success_alert,
+    on_failure_callback=dag_failure_alert,
     default_args=default_args
 ):
 
-    extract_sheet = PythonOperator(
+    extract_to_s3 = PythonOperator(
             task_id="extract_sheet",
+            email=[Variable.get("alert_email")],
+            email_on_failure=True,
             python_callable=load_gsheet_to_s3,
             op_kwargs={
-                "googlesheet_id": DATA_SOURCE,
-                "ssm_path": SERVICE_ACCOUNT_CREDENTIALS_PATH,
-                "folder_path": S3_FOLDER_PATH,
+                "googlesheet_id": "{{ var.value.data_source}}",
+                "ssm_path": "{{ var.value.service_account_details }}",
+                "folder_path": "{{ var.value.folder_path }}",
                 "file_name": "repairdetails",
+                "partition_date": "{{ logical_date | ds }}",
+                "run_id": "{{ run_id }}"
             },
         )
 
-extract_sheet
+extract_to_s3
