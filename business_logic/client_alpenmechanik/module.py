@@ -3,8 +3,9 @@ from datetime import date
 
 import awswrangler as wr
 import pandas as pd
-from airflow.models import Variable
+from airflow.providers.slack.hooks.slack_webhook import SlackWebhookHook
 from airflow.providers.smtp.notifications.smtp import SmtpNotifier
+from airflow.sdk import Variable
 
 from plugins.google_sheet import get_data_from_gsheet
 
@@ -68,39 +69,71 @@ def load_gsheet_to_s3(
             raise
 
 
-def dag_success_alert(context):
-    print("Callback executed")
+def email_success_alert(context):
+    logger.info("SUCCESS CALLBACK FIRED")
+    success_alert = SmtpNotifier(
+        from_email=Variable.get("alert_email"),
+        to=Variable.get("alert_email"),
+        subject=f"Airflow DAG Success: {context['dag'].dag_id}",
+        html_content=f"<p>DAG {context['dag'].dag_id} succeeded</p>"
+    )
     try:
-        SmtpNotifier(
-            from_email=Variable.get("alert_email"),
-            to=Variable.get("alert_email"),
-            subject=f"Airflow DAG Success: {context['dag'].dag_id}",
-            html_content=f"<p>DAG {context['dag'].dag_id} succeeded</p>"
-        ).notify(context)
-        print("Email sent successfully")
+        success_alert.notify(context)
+        logger.info("Email sent successfully")
     except Exception as e:
-        print(f"Email failed: {e}")
+        logger.warning(f"Email alert failed: {e}")
         raise
 
 
-def dag_failure_alert(context):
-    print("Callback executed")
+def email_failure_alert(context):
+    logger.info("FAILURE CALLBACK FIRED")
+    failure_alert = SmtpNotifier(
+        from_email=Variable.get("alert_email"),
+        to=Variable.get("alert_email"),
+        subject=f"Airflow DAG Fail Alert: {context['dag'].dag_id}",
+        html_content=f"""
+            <h3>Task Failed</h3>
+            <p><b>DAG:</b> {context['dag'].dag_id}</p>
+            <p><b>Task:</b> {context['task_instance'].task_id}</p>
+            <p><b>Exception:</b> {context.get('exception')}</p>
+            <p><a href="{
+                context['task_instance'].log_url
+                }">View Logs</a></p>
+        """
+    )
     try:
-        SmtpNotifier(
-            from_email=Variable.get("alert_email"),
-            to=Variable.get("alert_email"),
-            subject=f"Airflow DAG Fail Alert: {context['dag'].dag_id}",
-            html_content=f"""
-                <h3>Task Failed</h3>
-                <p><b>DAG:</b> {context['dag'].dag_id}</p>
-                <p><b>Task:</b> {context['task_instance'].task_id}</p>
-                <p><b>Exception:</b> {context.get('exception')}</p>
-                <p><a href="{
-                    context['task_instance'].log_url
-                    }">View Logs</a></p>
-            """
-        ).notify(context)
-        print("Email sent successfully")
+        failure_alert.notify(context)
+        logger.info("Email sent successfully")
     except Exception as e:
-        print(f"Email failed: {e}")
+        logger.warning(f"Email alert failed: {e}")
         raise
+
+
+def slack_hook_success_callback(context):
+    logger.info("SUCCESS CALLBACK FIRED")
+    dag_id = context['dag'].dag_id
+    task_id = context['task_instance'].task_id
+    try:
+        hook = SlackWebhookHook(slack_webhook_conn_id='slack_conn')
+        hook.send(
+            text=f":large_green_circle: DAG `{dag_id}` succeeded\n"
+                 f"Task: `{task_id}`"
+            )
+    except Exception as e:
+        logger.warning(f"Slack alert failed: {e}")
+
+
+def slack_hook_failure_callback(context):
+    logger.info("FAILURE CALLBACK FIRED")
+    dag_id = context['dag'].dag_id
+    task_id = context['task_instance'].task_id
+    log_url = context['task_instance'].log_url
+    try:
+        hook = SlackWebhookHook(slack_webhook_conn_id='slack_conn')
+        return hook.send_dict({
+            "text": f":rotating_light: DAG `{dag_id}` failed\n"
+                    f"Task: `{task_id}`\n"
+                    f"Logs: {log_url}"
+        })
+    except Exception as e:
+        logger.warning(f"Slack alert failed: {e}")

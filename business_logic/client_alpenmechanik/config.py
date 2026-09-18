@@ -1,4 +1,4 @@
-from airflow.models import Variable
+from airflow.sdk import Variable
 
 DATA_SOURCE = Variable.get("data_source")
 SERVICE_ACCOUNT_CREDENTIALS_PATH = (
