@@ -1,12 +1,12 @@
 from datetime import datetime, timedelta
 
 from airflow import DAG
-from airflow.models import Variable
 from airflow.providers.standard.operators.python import PythonOperator
+from airflow.sdk import Variable
 
-from business_logic.client_alpenmechanik.module import (dag_failure_alert,
-                                                        dag_success_alert,
-                                                        load_gsheet_to_s3)
+from business_logic.client_alpenmechanik.module import (
+    email_failure_alert, email_success_alert, load_gsheet_to_s3,
+    slack_hook_failure_callback, slack_hook_success_callback)
 
 default_args = {
     "owner": "client_alpenmechanik",
@@ -14,6 +14,7 @@ default_args = {
     "retry_delay": timedelta(minutes=1),
     "retry_exponential_backoff": True,
     "max_retry_delay": timedelta(minutes=30),
+    "email": [Variable.get("alert_email")],
 }
 
 
@@ -24,15 +25,15 @@ with DAG(
         "to s3 storage as backend for SFTP server"
     ),
     start_date=datetime(2026, 9, 7),
-    schedule="13 23 * * *",
+    schedule="30 7 * * *",
     catchup=False,
-    on_success_callback=dag_success_alert,
-    on_failure_callback=dag_failure_alert,
+    on_success_callback=[slack_hook_success_callback, email_success_alert],
+    on_failure_callback=[slack_hook_failure_callback, email_failure_alert],
     default_args=default_args
 ):
 
     extract_to_s3 = PythonOperator(
-            task_id="extract_sheet",
+            task_id="extract_sheet_to_s3",
             email=[Variable.get("alert_email")],
             email_on_failure=True,
             python_callable=load_gsheet_to_s3,
