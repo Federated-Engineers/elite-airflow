@@ -202,3 +202,4 @@ def postgresql_to_snowflake():
 
         postgres_conn.close()
         logger.info("PostgreSQL connection closed")
+
