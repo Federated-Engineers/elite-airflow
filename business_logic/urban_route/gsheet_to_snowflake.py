@@ -2,6 +2,7 @@ import logging
 
 import pandas as pd
 from airflow.models import Variable
+
 from plugins.google_sheet import get_data_from_gsheet
 from plugins.snowflake_helper import (establish_snowflake_connection,
                                       write_dataframe_to_snowflake)
