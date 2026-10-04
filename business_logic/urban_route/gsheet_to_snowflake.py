@@ -116,3 +116,4 @@ def gsheets_to_snowflake():
         snowflake_conn.close()
         logger.info("Snowflake connection closed")
 
+

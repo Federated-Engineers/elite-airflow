@@ -63,3 +63,4 @@ with DAG(
         extract_from_postgres_and_push_to_snowflake,
     )
 
+
