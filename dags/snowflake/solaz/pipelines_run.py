@@ -60,3 +60,4 @@ with DAG(
         extract_from_gsheet_and_push_to_snowflake,
         extract_from_postgres_and_push_to_snowflake,
     )
+
