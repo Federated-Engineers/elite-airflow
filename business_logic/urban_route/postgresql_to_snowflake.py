@@ -3,6 +3,7 @@ import logging
 
 import pandas as pd
 from airflow.models import Variable
+
 from plugins.aws import get_ssm_parameter
 from plugins.database import db_query_results_to_df, postgres_db_connection
 from plugins.snowflake_helper import (establish_snowflake_connection,
