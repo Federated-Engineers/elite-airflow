@@ -97,7 +97,7 @@ def get_new_postgres_data(
     return df
 
 
-def postgresql_to_snowflake():
+def postgres_to_snowflake():
     """Incrementally ingest UrbanRoute PostgreSQL tables into Bronze."""
 
     db_ssm_path = sensitive_config["db_ssm_path"]

@@ -6,8 +6,8 @@ from airflow.models import Variable
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 from airflow.providers.standard.operators.python import PythonOperator
 from business_logic.urban_route.gsheet_to_snowflake import gsheets_to_snowflake
-from business_logic.urban_route.postgresql_to_snowflake import \
-    postgresql_to_snowflake
+from business_logic.urban_route.postgres_to_snowflake import \
+    postgres_to_snowflake
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +53,7 @@ with DAG(
 
     extract_from_postgres_and_push_to_snowflake = PythonOperator(
         task_id="extract_from_postgres_and_push_to_snowflake",
-        python_callable=postgresql_to_snowflake,
+        python_callable=postgres_to_snowflake,
     )
 
     (
