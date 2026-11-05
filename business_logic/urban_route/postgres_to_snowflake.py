@@ -125,6 +125,7 @@ def get_new_postgres_data(
 
     return df
 
+
 def postgres_to_snowflake():
     """Incrementally ingest UrbanRoute PostgreSQL tables into Bronze."""
 
