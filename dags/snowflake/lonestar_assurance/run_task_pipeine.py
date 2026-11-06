@@ -46,9 +46,8 @@ with DAG(
         launch_type="FARGATE",
         do_xcom_push=False,
         network_configuration={
-            "awsvpcConfiguration": {"{{ var.json.network_configuration }}"}
-            },
-        aws_conn_id="aws_conn"
+            "awsvpcConfiguration": "{{ var.json.network_configuration }}"
+            }
     )
 
 load_to_bronze >> run_ecs_task
