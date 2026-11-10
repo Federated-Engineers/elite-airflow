@@ -1,10 +1,10 @@
-
+import logging
 from datetime import datetime, timedelta
 
 from airflow import DAG
 from airflow.providers.amazon.aws.operators.ecs import EcsRunTaskOperator
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
-from airflow.sdk import Variable
+
 
 default_args = {
     "owner": "lonestar_assurance",
@@ -12,7 +12,6 @@ default_args = {
     "retry_delay": timedelta(minutes=1),
     "retry_exponential_backoff": True,
     "max_retry_delay": timedelta(minutes=30),
-    "email": [Variable.get("alert_email")],
 }
 
 
@@ -46,7 +45,7 @@ with DAG(
         launch_type="FARGATE",
         do_xcom_push=False,
         network_configuration={
-            "awsvpcConfiguration": "{{ var.json.network_configuration }}"
+            "awsvpcConfiguration": "{{ var.json.network_configuration }}"  
             }
     )
 
