@@ -1,10 +1,8 @@
-import logging
 from datetime import datetime, timedelta
 
 from airflow import DAG
 from airflow.providers.amazon.aws.operators.ecs import EcsRunTaskOperator
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
-
 
 default_args = {
     "owner": "lonestar_assurance",
@@ -45,7 +43,7 @@ with DAG(
         launch_type="FARGATE",
         do_xcom_push=False,
         network_configuration={
-            "awsvpcConfiguration": "{{ var.json.network_configuration }}"  
+            "awsvpcConfiguration": "{{ var.json.network_configuration }}"
             }
     )
 
