@@ -66,47 +66,19 @@ def get_new_postgres_data(
     data_type,
     snowflake_max_value,
 ):
-    """Extract new PostgreSQL records from UrbanRoute."""
-    # VEHICLES: retain the latest record for each vehicle
-    if table == "VEHICLES":
+    """Extract new records from an UrbanRoute PostgreSQL table."""
 
-        query = """
-            WITH ranked_vehicles AS (
+    query = f"""
+        SELECT *
+        FROM data_factory.{table}
+    """
 
-                SELECT
-                    *,
-                    ROW_NUMBER() OVER (
-                        PARTITION BY vehicle_id
-                        ORDER BY deployment_date DESC
-                    ) AS row_num
-
-                FROM data_factory.vehicles
-
-            )
-
-            SELECT
-                *
-            FROM ranked_vehicles
-
-            WHERE row_num = 1;
+    if snowflake_max_value is not None:
+        query += f"""
+        WHERE {column}::{data_type} > '{snowflake_max_value}'
         """
 
-    # Other PostgreSQL tables: incremental extraction
-    else:
-
-        query = f"""
-            SELECT *
-            FROM data_factory.{table}
-        """
-
-        if snowflake_max_value is not None:
-
-            query += f"""
-                WHERE {column}::{data_type}
-                > '{snowflake_max_value}'
-            """
-
-        query += ";"
+    query += ";"
 
     logger.info(
         "Extracting data from PostgreSQL table: %s",
