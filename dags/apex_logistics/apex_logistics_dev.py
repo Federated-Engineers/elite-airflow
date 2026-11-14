@@ -3,8 +3,7 @@ from datetime import timedelta
 import pendulum
 from airflow import DAG
 from airflow.providers.amazon.aws.operators.emr import (
-    EmrAddStepsOperator, EmrCreateJobFlowOperator,
-    EmrTerminateJobFlowOperator)
+    EmrAddStepsOperator, EmrCreateJobFlowOperator, EmrTerminateJobFlowOperator)
 from airflow.providers.amazon.aws.sensors.emr import EmrStepSensor
 from airflow.providers.standard.operators.python import PythonOperator
 
