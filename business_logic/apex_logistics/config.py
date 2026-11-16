@@ -4,6 +4,8 @@ REGION = "eu-central-1"
 CLUSTER_NAME = "apex-logistics-dev-cluster"
 RELEASE_LABEL = "emr-spark-8.0.0"
 IDLE_TIMEOUT_SECONDS = 1200
+TEAM = "elite"
+USE_CASE = "apex-logistics-carrier-analytics"
 
 # IAM and network
 SERVICE_ROLE = "{{ var.json.apex_logistics_emr_config.service_role }}"
@@ -15,6 +17,7 @@ PRIMARY_SECURITY_GROUP_ID = (
 CORE_TASK_SECURITY_GROUP_ID = (
     "{{ var.json.apex_logistics_emr_config.core_task_security_group_id }}"
 )
+ENVIRONMENT = "{{ var.json.apex_logistics_emr_config.environment }}"
 
 # S3
 LOG_BUCKET = "federated-engineers-staging-elite-apex-logistics-emr-logs"
@@ -79,6 +82,9 @@ JOB_FLOW_OVERRIDES = {
     },
     "AutoTerminationPolicy": {"IdleTimeout": IDLE_TIMEOUT_SECONDS},
     "Tags": [
+        {"Key": "team", "Value": TEAM},
+        {"Key": "use-case", "Value": USE_CASE},
+        {"Key": "environment", "Value": ENVIRONMENT},
         {"Key": "for-use-with-amazon-emr-managed-policies", "Value": "true"},
     ],
 }
