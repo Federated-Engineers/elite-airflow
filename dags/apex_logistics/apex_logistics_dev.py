@@ -28,6 +28,7 @@ with DAG(
     start_date=pendulum.datetime(2026, 11, 1, tz="Africa/Lagos"),
     schedule=None,
     catchup=False,
+    render_template_as_native_obj=True,
     default_args=default_args,
     tags=[
         "elite",

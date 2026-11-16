@@ -5,18 +5,16 @@ CLUSTER_NAME = "apex-logistics-dev-cluster"
 RELEASE_LABEL = "emr-spark-8.0.0"
 IDLE_TIMEOUT_SECONDS = 1200
 
-# IAM
-SERVICE_ROLE = "elite-emr-staging-service-role"
-INSTANCE_PROFILE = "elite-emr-staging-apex-logistics-instance-role"
-
-# Network
-SUBNET_IDS = [
-    "subnet-007890019937ed2e9",
-    "subnet-02dea4ee39939e241",
-    "subnet-00ca9b61fa08f7f1d",
-]
-PRIMARY_SECURITY_GROUP_ID = "sg-0748e8892e400fd90"
-CORE_TASK_SECURITY_GROUP_ID = "sg-02c10add6f7b15d65"
+# IAM and network
+SERVICE_ROLE = "{{ var.json.apex_logistics_emr_config.service_role }}"
+INSTANCE_PROFILE = "{{ var.json.apex_logistics_emr_config.instance_profile }}"
+SUBNET_IDS = "{{ var.json.apex_logistics_emr_config.subnet_ids }}"
+PRIMARY_SECURITY_GROUP_ID = (
+    "{{ var.json.apex_logistics_emr_config.primary_security_group_id }}"
+)
+CORE_TASK_SECURITY_GROUP_ID = (
+    "{{ var.json.apex_logistics_emr_config.core_task_security_group_id }}"
+)
 
 # S3
 LOG_BUCKET = "federated-engineers-staging-elite-apex-logistics-emr-logs"
