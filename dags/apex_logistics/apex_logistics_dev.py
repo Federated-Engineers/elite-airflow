@@ -53,7 +53,7 @@ with DAG(
     add_steps = EmrAddStepsOperator(
         task_id="add_steps",
         job_flow_id=cluster_id,
-        steps=config.SMOKE_TEST_STEPS,
+        steps=config.CARRIER_ANALYTICS_STEPS,
         region_name=config.REGION,
         retries=0,
     )
@@ -62,8 +62,10 @@ with DAG(
         task_id="watch_step",
         job_flow_id=cluster_id,
         step_id=step_id,
-        timeout=60 * 60,
+        timeout=2 * 60 * 60,
+        execution_timeout=timedelta(hours=2),
         region_name=config.REGION,
+        retries=0,
     )
 
     terminate_cluster = EmrTerminateJobFlowOperator(
