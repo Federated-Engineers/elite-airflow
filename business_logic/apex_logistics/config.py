@@ -26,6 +26,15 @@ LOG_URI = f"s3://{LOG_BUCKET}/{LOG_PREFIX}/"
 SMOKE_TEST_SCRIPT = (
     "s3://spark-apex-freight-data/artifacts/dev/smoke_test/smoke_test.py"
 )
+CARRIER_ANALYTICS_PATH = (
+    "s3://spark-apex-freight-data/artifacts/dev/carrier_analytics"
+)
+CARRIER_ANALYTICS_OUTPUT = (
+    "s3://spark-apex-freight-data/processed/dev/carrier_analytics/"
+)
+
+# Job
+CARRIER_ANALYTICS_RUN_DATE = "2026-09-30"
 
 # Instance fleets
 PRIMARY_INSTANCE_TYPES = [
@@ -70,6 +79,12 @@ JOB_FLOW_OVERRIDES = {
     "Name": CLUSTER_NAME,
     "ReleaseLabel": RELEASE_LABEL,
     "Applications": [{"Name": "Spark"}],
+    "Configurations": [
+        {
+            "Classification": "delta-defaults",
+            "Properties": {"delta.enabled": "true"},
+        },
+    ],
     "ServiceRole": SERVICE_ROLE,
     "JobFlowRole": INSTANCE_PROFILE,
     "LogUri": LOG_URI,
@@ -100,6 +115,27 @@ SMOKE_TEST_STEPS = [
                 "--deploy-mode",
                 "client",
                 SMOKE_TEST_SCRIPT,
+            ],
+        },
+    }
+]
+
+CARRIER_ANALYTICS_STEPS = [
+    {
+        "Name": "carrier-analytics",
+        "HadoopJarStep": {
+            "Jar": "command-runner.jar",
+            "Args": [
+                "spark-submit",
+                "--deploy-mode",
+                "client",
+                "--py-files",
+                f"{CARRIER_ANALYTICS_PATH}/transformations.py",
+                f"{CARRIER_ANALYTICS_PATH}/main.py",
+                "--run-date",
+                CARRIER_ANALYTICS_RUN_DATE,
+                "--output-path",
+                CARRIER_ANALYTICS_OUTPUT,
             ],
         },
     }
